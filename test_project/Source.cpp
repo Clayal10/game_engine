@@ -1,10 +1,5 @@
 /*	Some Notes:
- - Replace floor with texture (DONE)
- - change shooting / get rid of burst?
- - Reorganize classes into something like base_class.h (DONE)
-	- Could reorganize more by making base_class.cpp and putting classes in game.h or erase game.h
- - Create proper turret class.
- - Add a health or damage mechanism
+ - change shooting to take into account time
 */
 
 
@@ -26,8 +21,6 @@
 #include "base_class.h"
 
 #define _USE_MATH_DEFINES
-#define GRAVITY 0.015f
-#define M_PI 3.14159265f
 
 std::mutex grand_mutex;
 
@@ -112,7 +105,7 @@ struct key_status {
 struct key_status player_key_status;
 
 void fire(bool burst = false){
-	ice_balls.add_projectile(player_position, player_heading, player_elevation, 1.6f, 10000.0f, 1.0f, burst);
+	ice_balls.add_projectile(player_position, player_heading, player_elevation, fire_speed, 10000.0f, 1.0f, burst);
 }
 
 void mouse_click_callback(GLFWwindow* window, int button, int action, int mods){
@@ -141,7 +134,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		player_key_status.right = action;
 	if(GLFW_KEY_SPACE == key && 1 == action){
 		if(player_platform || player_position.y == player_height){ // this only works since floor height is 0
-			player_fall_speed = 0.65f;
+			player_fall_speed = fall_speed;
 			player_position.y += 1.0f;
 			player_platform = 0;
 		}
