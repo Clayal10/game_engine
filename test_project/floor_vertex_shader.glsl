@@ -13,6 +13,5 @@ void main(void) {
 	vec4 instance_point = vec4(in_vertex.x + float(x_offset), in_vertex.y, in_vertex.z + float(z_offset), 1.0);
 	instance_point.xz *= 5;
 	gl_Position = mvp * instance_point;
-	f_texcoord = in_vertex.xz; 	
-//fcolor = vec4((1 + in_vertex.x) * 0.5, (1 + 0.5 * (in_vertex.z + in_vertex.x)) * 0.5, (1 + in_vertex.x) * 0.5, 1.0);
+	f_texcoord = in_vertex.xz;
 }
