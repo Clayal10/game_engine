@@ -16,6 +16,7 @@
 
 #define _USE_MATH_DEFINES
 #define GRAVITY 0.0001f
+#define M_PI 3.14159265
 
 struct vertex {
 	glm::vec3 pos;
@@ -48,11 +49,11 @@ class gameobject {
 		virtual void move(int elapsed_time) {}
 		virtual void animate() {}
 		virtual bool is_on_idx(glm::vec3 position, size_t index, float height) {return false;}
-		virtual ssize_t is_on(glm::vec3 position, float height) {return -1;}
-		virtual ssize_t collision_index(glm::vec3 position, float distance = 0) {
+		virtual long is_on(glm::vec3 position, float height) {return -1;}
+		virtual long collision_index(glm::vec3 position, float distance = 0) {
 			return -1;
 		}
-		virtual glm::vec3 collision_normal(glm::vec3 move_to, glm::vec3 old_position, ssize_t index, float distance = 0) {
+		virtual glm::vec3 collision_normal(glm::vec3 move_to, glm::vec3 old_position, long index, float distance = 0) {
 			return glm::vec3(0, 0, 0);
 		}
 		virtual bool collision_with_index(glm::vec3 position, size_t index, float distance = 0) { return false;}
@@ -75,9 +76,9 @@ public:
 class block_object : virtual  public gameobject {
 	public:
 		bool is_on_idx(glm::vec3 position, size_t index, float height) override;
-		ssize_t is_on(glm::vec3 position, float height) override;
-		ssize_t collision_index(glm::vec3 position, float distance = 0) override;
-		glm::vec3 collision_normal(glm::vec3 move_to, glm::vec3 old_position, ssize_t index, float distance = 0) override;
+		long is_on(glm::vec3 position, float height) override;
+		long collision_index(glm::vec3 position, float distance = 0) override;
+		glm::vec3 collision_normal(glm::vec3 move_to, glm::vec3 old_position, long index, float distance = 0) override;
 		bool collision_with_index(glm::vec3 position, size_t index, float distance = 0) override;
 };
 

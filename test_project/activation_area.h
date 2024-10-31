@@ -29,7 +29,7 @@ class activation_area : public gameobject {
 					size.z/2.0f + distance > abs(l.z-position.z));
 
 		}
-		ssize_t collision_index(glm::vec3 position, float distance){
+		long collision_index(glm::vec3 position, float distance){
 			for(size_t i = 0; i < locations.size(); i++){
 				if(collision_with_index(position, i, distance)){ 
 					if(types[i] == 0)

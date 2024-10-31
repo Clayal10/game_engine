@@ -77,14 +77,14 @@ bool block_object::is_on_idx(glm::vec3 position, size_t index, float height){
 
 }
 
-ssize_t block_object::is_on(glm::vec3 position, float height) {
+long block_object::is_on(glm::vec3 position, float height) {
 	for(size_t i = 0; i < locations.size(); i++)
 		if(is_on_idx(position, i, height))
 			return i;
 	return -1;
 }
 
-ssize_t block_object::collision_index(glm::vec3 position, float distance){
+long block_object::collision_index(glm::vec3 position, float distance){
 	for(size_t i = 0; i < locations.size(); i++){
 		glm::vec3 l = locations[i]; // This'll get optimized out
 		if(	size.x/2.0f + distance > abs(l.x-position.x) && 
@@ -97,7 +97,7 @@ ssize_t block_object::collision_index(glm::vec3 position, float distance){
 }
 
 /* Leaving y for later, so we finish today */
-glm::vec3 block_object::collision_normal(glm::vec3 move_to, glm::vec3 old_position, ssize_t index, float distance){
+glm::vec3 block_object::collision_normal(glm::vec3 move_to, glm::vec3 old_position, long index, float distance){
 	glm::vec3 l = locations[index]; // This'll get optimized out
 	if(	old_position.z > l.z + (size.z/2 + distance) &&
 			old_position.x >= l.x - (size.x/2 + distance) &&

@@ -41,9 +41,9 @@ class target : public loaded_object, public block_object {
 
 };
 
-ssize_t is_empty(glm::vec3 position, float distance = 0.2f){
+long is_empty(glm::vec3 position, float distance = 0.2f){
 	for(gameobject* o : objects) {
-		ssize_t collide_index = o->collision_index(position, distance);
+		long collide_index = o->collision_index(position, distance);
 		if(collide_index != -1)
 			return false;
 	}
@@ -132,7 +132,7 @@ void player_movement(){
 			step_to_point += 0.05f * glm::vec3(-sinf(player_heading + M_PI/2), 0, -cosf(player_heading + M_PI/2));
 		}
 		for(gameobject* o : objects) {
-			ssize_t collide_index = o->collision_index(step_to_point, 0.2f);
+			long collide_index = o->collision_index(step_to_point, 0.2f);
 			if(collide_index != -1) {
 				if(is_empty(glm::vec3(player_position.x, step_to_point.y, step_to_point.z), 0.2f)) {
 					step_to_point.x = player_position.x;
@@ -158,7 +158,7 @@ void player_movement(){
 		} else {
 			float floor_height = 0;
 			for(gameobject* o : objects) {
-				ssize_t ppi = o->is_on(player_position, player_height);
+				long ppi = o->is_on(player_position, player_height);
 				if(ppi != -1) {
 					player_platform_index = ppi;
 					player_platform = o;	
@@ -231,7 +231,7 @@ void collision_detection(){
 			glm::vec3 l = ice_balls.locations[proj_index];
 			for(auto o : objects){
 				if(o->collision_check){
-					ssize_t index = o->collision_index(l);
+					long index = o->collision_index(l);
 					if(index != -1) {
 						o->hit_index(index);
 						ice_balls.hit_index(proj_index);
@@ -311,7 +311,7 @@ int main(int argc, char** argv) {
 
 	/* Set up callbacks */
 	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(debug_callback, 0);
+	//glDebugMessageCallback(debug_callback, 0);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, pos_callback);
 	glfwSetFramebufferSizeCallback(window, resize);
