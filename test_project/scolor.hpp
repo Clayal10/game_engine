@@ -1,4 +1,3 @@
-#pragma once
 /*
  * Color library for C++
  * Use like this;
