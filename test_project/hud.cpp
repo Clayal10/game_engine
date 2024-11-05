@@ -80,16 +80,18 @@ void hud::set_text(const char* text){
 		if(*text != '\n'){
 			set_char(col, line, *text);
 			col++;
-		} else {
+		}else {
 			col = 0;
 			line++;
 		}
+		
 }
 
 int hud::init(){
 	std::vector<float> vertices;	
 	/* 100 character display, 3 lines */
-	for(float y = y_space; y >= -y_space; y -= y_space)
+	float y=y_space;
+	//for(float y = y_space; y >= -y_space; y -= y_space)
 		for(int i = 0; i < char_width; i++){
 			vertices.push_back(0.01f * i);
 			vertices.push_back(y);

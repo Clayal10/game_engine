@@ -1,8 +1,6 @@
 /*
- * Simple game engine example in C++
- * Fall 2024
- * For CS392:  Game Engine Design
- */
+ 	Game engine for project 3, AI maze
+*/
 #define MAIN
 #include "game.h"
 
@@ -13,6 +11,8 @@
 #include "turret.h"
 #include "geometric_objects.h"
 #include "hud.h"
+#include "pathway.h"
+#include "bot.h"
 
 std::mutex grand_mutex;
 
@@ -22,10 +22,9 @@ float width = 2550;
 /* Global section */
 int time_resolution = 10;
 int framecount = 0;
-
 std::vector<gameobject*> objects;
 projectile ice_balls;
-wall_block spawned_blocks("cube.obj", "projectile.jpg", glm::vec3(2, 2, 2));
+bot spawned_blocks;
 fragment brick_fragments;
 hud main_hud;
 
@@ -328,63 +327,17 @@ int main(int argc, char** argv) {
 	objects.push_back(&ice_balls);
 	objects.push_back(&fl);
 
-
-	targets.scale = 10.0f;
-	for(int height = 30; height < 300; height+= 30)
-		for(int x = -90; x <= 90; x += 30)
-			targets.locations.push_back(glm::vec3(x, height, 0));
-	objects.push_back(&targets);
-	objects.push_back(&brick_fragments);
-
-	wall_block wallblock("cube.obj", "brick.jpg", glm::vec3(2, 2, 2));
-	objects.push_back(&wallblock);
-	for(int x = 0; x < 20; x += 2)
-		for(int y = -10; y < 10; y += 2)
-			for(int z = 0; z < 4; z += 2)
-				wallblock.locations.push_back(glm::vec3(x, y, z));
+	/*Maze path*/
+	pathway path;
+	for(int z = 200; z>100; z -= path.width)
+		path.locations.push_back(glm::vec3(0, -10, z));
+	objects.push_back(&path);
 
 
-	activation_area target_spawning;
-	target_spawning.size = glm::vec3(20, 20, 20);
-	target_spawning.add_area(glm::vec3(10, 0, 10), bob, 1);
-	target_spawning.add_area(glm::vec3(0, 5, 400), activate_turret, 2);
-	objects.push_back(&target_spawning);
-
-
-	/*
-		wall_block monster_box("cube.obj", "monster1.png", glm::vec3(10, 10, 10));
-		monster_box.scale = 5.0;
-		monster_box.locations.push_back(glm::vec3(53, -10, 50));
-		objects.push_back(&monster_box);
-		*/	
-
-	// What if it wasn't a cube?
-	wall_block bwb("cube.obj", "brick.jpg", glm::vec3(20, 20, 20));
-	bwb.scale = 10;
-	bwb.texture_scale = glm::vec2(10, 10);
-	bwb.locations.push_back(glm::vec3(-30, 0, 0));
-	objects.push_back(&bwb);
-
-	t.locations.push_back(glm::vec3(100, -5, 200));
-	t.locations.push_back(glm::vec3(-100, -5, 200));
-	t.locations.push_back(glm::vec3(100, -5, 100));
-	t.locations.push_back(glm::vec3(50, -5, 100));
-	t.current_target = &targets;
-	t.current_projectile = &ice_balls;
-	objects.push_back(&t);
-
-	flat_panel p("nutsandbolts.jpg");
-	p.addpanel(glm::vec3(0, -9.99, 400), glm::vec2(10, 10), glm::vec2(1, 1));
-	p.addpanel(glm::vec3(32, -9.99, 450), glm::vec2(5, 5), glm::vec2(2.0, 2.0));
-	p.addpanel(glm::vec3(21, -9.99, 450), glm::vec2(5, 5), glm::vec2(0.5, 0.5));
-	p.addpanel(glm::vec3(10, -9.99, 450), glm::vec2(5, 5), glm::vec2(1, 1));
-	objects.push_back(&p);	
 
 	aimpoint main_aimpoint;
 	objects.push_back(&main_aimpoint);
-
 	objects.push_back(&main_hud);
-
 	objects.push_back(&spawned_blocks);
 
 	/* Initialize game objects */
