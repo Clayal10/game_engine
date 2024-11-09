@@ -91,7 +91,7 @@ int hud::init(){
 	std::vector<float> vertices;	
 	/* 100 character display, 3 lines */
 	float y=y_space;
-	//for(float y = y_space; y >= -y_space; y -= y_space)
+	for(float y = y_space; y >= -y_space; y -= y_space)
 		for(int i = 0; i < char_width; i++){
 			vertices.push_back(0.01f * i);
 			vertices.push_back(y);

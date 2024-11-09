@@ -49,9 +49,24 @@ long is_empty(glm::vec3 position, float distance = 0.2f){
 	return true;
 
 }
+// shoud use is_empty, don't know how to use it lol
+/*
+void path_walls::create_walls(pathway path, glm::vec3 center, int radius){
+	int r = radius*10;	
+	for(int x=center.x-r; x<center.x + r; x += 10){
+		for(int z = center.z-r; z<center.z + r; z += 10){
+			for(int i=0; i<path.locations.size(); i++){// check each location
+				if(x != path.locations[i].x && z != path.locations[i].z)
+					locations.push_back(glm::vec3(x, 0, z));
+			}
+		}
+	}
+}
+*/
+
 
 struct key_status {
-	int forward, backward, left, right;
+	int forward, backward, left, right, up, down;
 };
 struct key_status player_key_status;
 
@@ -102,12 +117,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		player_key_status.left = action;
 	if(GLFW_KEY_D == key)
 		player_key_status.right = action;
-	if(GLFW_KEY_SPACE == key && 1 == action){
+	//if(GLFW_KEY_SPACE == key && 1 == action){ // turn off gravity, also changed in player_movement
+	if(GLFW_KEY_SPACE == key){	
+	/*
 		if(player_platform || player_position.y < 0.1f + player_height){
 			player_fall_speed = 0.04f;
 			player_position.y += 1.0f;
 			player_platform = 0;
 		}
+		*/
+		player_key_status.up = action;
+	} // may need to check and make sure shift and space aren't pressed at the same time
+	if(GLFW_KEY_LEFT_SHIFT == key){
+		player_key_status.down = action;
 	}
 }
 
@@ -130,6 +152,12 @@ void player_movement(){
 		if(player_key_status.right){
 			step_to_point += 0.05f * glm::vec3(-sinf(player_heading + M_PI/2), 0, -cosf(player_heading + M_PI/2));
 		}
+		if(player_key_status.up){
+			step_to_point += 0.05f * glm::vec3(0, 1, 0);
+		}
+		if(player_key_status.down){
+			step_to_point += 0.05f * glm::vec3(0, -1, 0);
+		}
 		for(gameobject* o : objects) {
 			long collide_index = o->collision_index(step_to_point, 0.2f);
 			if(collide_index != -1) {
@@ -139,6 +167,10 @@ void player_movement(){
 				}
 				else if(is_empty(glm::vec3(step_to_point.x, step_to_point.y, player_position.z), 0.2f)) {
 					step_to_point.z = player_position.z;
+					break;
+				}
+				else if(is_empty(glm::vec3(step_to_point.x, step_to_point.y, player_position.z), 0.2f)) {
+					step_to_point.y = player_position.y;
 					break;
 				}
 				else {
@@ -167,8 +199,8 @@ void player_movement(){
 				}
 			}
 			if(player_position.y - player_height > floor_height) {
-				player_position.y += player_fall_speed;
-				player_fall_speed -= GRAVITY;
+				//player_position.y += player_fall_speed;
+				//player_fall_speed -= GRAVITY;
 			} else {
 				player_fall_speed = 0;
 				player_position.y = floor_height + player_height; 
@@ -329,10 +361,25 @@ int main(int argc, char** argv) {
 
 	/*Maze path*/
 	pathway path;
+	pathway_end path_end;
 	for(int z = 200; z>100; z -= path.width)
 		path.locations.push_back(glm::vec3(0, -10, z));
-	objects.push_back(&path);
+	for(int x =-40; x<100; x += path.width)
+		path.locations.push_back(glm::vec3(x, -10, 100));
+	for(int z=130; z > -30; z -= path.width)
+		path.locations.push_back(glm::vec3(100, -10, z));
+	for(int x=110; x > -40; x -= path.width)
+		path.locations.push_back(glm::vec3(x, -10, -30));
+	for(int z=-30; z < 70; z += path.width)
+		path.locations.push_back(glm::vec3(0, -10, z));
+	path_end.locations.push_back(glm::vec3(0, -10, 70));
 
+	objects.push_back(&path_end);
+	objects.push_back(&path);
+	
+	path_walls walls;
+	walls.create_walls(&path, &path_end,  glm::vec3(10, 0, 70), 14);
+	objects.push_back(&walls);
 
 
 	aimpoint main_aimpoint;
@@ -348,7 +395,7 @@ int main(int argc, char** argv) {
 		}
 	}
 	
-	//main_hud.set_text("Hello World\nThis is line two\nAnd line three!");
+	main_hud.set_text("\n\n");
 
 	/* Start Other Threads */
 	std::thread player_movement_thread(player_movement);

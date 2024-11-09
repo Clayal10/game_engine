@@ -3,6 +3,7 @@
 layout(packed, binding=0) buffer model_list {
 	mat4 models[];
 };
+
 in vec3 in_vertex;
 in vec2 in_texcoord;
 uniform mat4 vp;
