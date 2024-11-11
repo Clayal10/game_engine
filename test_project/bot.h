@@ -24,11 +24,11 @@ public:
 	float bot_speed = 0.1f;
 	float alive = false;
 
-	bot() : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(5, 5, 5)){
+	bot() : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(5, 5, 5)) {
 		scale = 0.25f;
 		to_start.push_back(glm::vec3(0, 0, 200));
 		explored.push_back(glm::vec3(0, 0, 200));
-	 
+	}
 
 	pathway path;
 	
@@ -52,7 +52,7 @@ public:
 				to_start.push_back(locations[0]); // we will pop off if needed here
 				explored.push_back(locations[0]); // we won't remove any glm::vec3 nodes
 				//check every location around and move if unexplored
-				for(long unsigned int = 0; i<path.locations.size(); i++){
+				for(long unsigned int i = 0; i<path.locations.size(); i++){
 					if(path.locations[i] == locations[0] + glm::vec3(0, -10, -10)){
 						rotation_state = 0;
 					}
