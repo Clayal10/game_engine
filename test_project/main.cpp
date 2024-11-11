@@ -24,7 +24,7 @@ int time_resolution = 10;
 int framecount = 0;
 std::vector<gameobject*> objects;
 projectile ice_balls;
-bot spawned_blocks;
+bot cat_bot;
 fragment brick_fragments;
 hud main_hud;
 
@@ -49,20 +49,6 @@ long is_empty(glm::vec3 position, float distance = 0.2f){
 	return true;
 
 }
-// shoud use is_empty, don't know how to use it lol
-/*
-void path_walls::create_walls(pathway path, glm::vec3 center, int radius){
-	int r = radius*10;	
-	for(int x=center.x-r; x<center.x + r; x += 10){
-		for(int z = center.z-r; z<center.z + r; z += 10){
-			for(int i=0; i<path.locations.size(); i++){// check each location
-				if(x != path.locations[i].x && z != path.locations[i].z)
-					locations.push_back(glm::vec3(x, 0, z));
-			}
-		}
-	}
-}
-*/
 
 
 struct key_status {
@@ -96,11 +82,16 @@ void mouse_click_callback(GLFWwindow* window, int button, int action, int mods){
 			look_at_point.z += 2.0f * roundf(2.0f * cosf(player_elevation) * cosf(player_heading));
 		}
 		if(is_empty(look_at_point, 0.0f))
-			spawned_blocks.locations.push_back(look_at_point);
+			cat_bot.locations.push_back(look_at_point);
 	}
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
+	if(GLFW_KEY_Q == key){
+		cat_bot.locations.push_back(glm::vec3(0, 0, 200)); // location of first maze block
+		cat_bot.alive = true;
+	}
+	
 	if(GLFW_KEY_W == key && 1 == action){
 		player_key_status.forward = 1;
 	}	
@@ -117,19 +108,23 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		player_key_status.left = action;
 	if(GLFW_KEY_D == key)
 		player_key_status.right = action;
-	//if(GLFW_KEY_SPACE == key && 1 == action){ // turn off gravity, also changed in player_movement
 	if(GLFW_KEY_SPACE == key){	
-	/*
+		
 		if(player_platform || player_position.y < 0.1f + player_height){
+			player_fly = 0;
 			player_fall_speed = 0.04f;
 			player_position.y += 1.0f;
 			player_platform = 0;
 		}
-		*/
-		player_key_status.up = action;
 	} // may need to check and make sure shift and space aren't pressed at the same time
+	if(GLFW_KEY_LEFT_CONTROL == key){
+		player_key_status.up = action;
+		player_fall_speed = 0.0f;
+		player_fly = 1;
+	}
 	if(GLFW_KEY_LEFT_SHIFT == key){
-		player_key_status.down = action;
+		if(!player_platform)
+			player_key_status.down = action;
 	}
 }
 
@@ -199,8 +194,9 @@ void player_movement(){
 				}
 			}
 			if(player_position.y - player_height > floor_height) {
-				//player_position.y += player_fall_speed;
-				//player_fall_speed -= GRAVITY;
+				player_position.y += player_fall_speed;
+				if(!player_fly)
+					player_fall_speed -= GRAVITY;
 			} else {
 				player_fall_speed = 0;
 				player_position.y = floor_height + player_height; 
@@ -385,7 +381,7 @@ int main(int argc, char** argv) {
 	aimpoint main_aimpoint;
 	objects.push_back(&main_aimpoint);
 	objects.push_back(&main_hud);
-	objects.push_back(&spawned_blocks);
+	objects.push_back(&cat_bot);
 
 	/* Initialize game objects */
 	for(gameobject* o : objects){

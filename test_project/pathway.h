@@ -15,17 +15,17 @@ public:
 	pathway_end() : loaded_object("finish_platform.obj", "beans.jpg", glm::vec3(width, 2, width)){}
 };
 
-class path_walls : public loaded_object{
+class path_walls : public wall_block{
 public:
 	double width = 10;
-	path_walls() : loaded_object("path_walls.obj", "wall.jpeg", glm::vec3(width, 20, width)){}
-
+	path_walls() : wall_block("path_walls.obj", "wall.jpeg", glm::vec3(width, 20, width)){collision_check = true;}
 
 
 	void create_walls(pathway* path, pathway_end* end, glm::vec3 center, int radius){ // center is the center of a 10x10 tile, radius is * pathway_width
 		int r = radius*10;	
 		for(int x=center.x-r; x<center.x + r; x += 10){
 			for(int z = center.z-r; z<center.z + r; z += 10){
+				//this is slow, but can't work is_empty into it :/
 				for(long unsigned int i=0; i<path->locations.size(); i++){// check each location
 					if(x == path->locations[i].x && z == path->locations[i].z){break;}
 					else if(x == end->locations[0].x && z == end->locations[0].z){break;}

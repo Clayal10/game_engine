@@ -4,16 +4,14 @@
 	Need to make .obj file
 		Using cat, may need to check collision since the location is in "front" of the cat
 */
-#include<set>
 #include "game.h"
-#include "pathway.h"
 class bot : public loaded_object{
 public:
 	float rotation = 0; // just assuming this is in degrees from 0 (looking -z)
 	double time_buff;
 	int rotation_state = 0; // starts looking -z
 	std::vector<glm::vec3> to_start; // list of when it needed to make a choice
-	std::vector<glm::vec3> explored;
+	std::set<glm::vec3> explored;
 	/*rotate_dir key:
 	 * 	0: -z straight
 	 * 	1: +x right
@@ -26,12 +24,9 @@ public:
 
 	bot() : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(5, 5, 5)){
 		scale = 0.25f;
-		to_start.push_back(glm::vec3(0, 0, 200));
-		explored.push_back(glm::vec3(0, 0, 200));
-	 
 
-	pathway path;
-	
+	}
+
 	void move(int elapsed_time){
 		//TODO Set up conditionals for hitting walls. TODO the AI
 		/*heading of M_PI is towards -z: may or may not be useful
@@ -48,25 +43,10 @@ public:
 					alive = false;
 				}	
 			}else{//if not finished with the maze, move; going to be a follow the left wall kinda dealio
-				move_(rotation_state); 
 				to_start.push_back(locations[0]); // we will pop off if needed here
-				explored.push_back(locations[0]); // we won't remove any glm::vec3 nodes
+				explored.insert(locations[0]); // we won't remove any glm::vec3 nodes
 				//check every location around and move if unexplored
-				for(long unsigned int = 0; i<path.locations.size(); i++){
-					if(path.locations[i] == locations[0] + glm::vec3(0, -10, -10)){
-						rotation_state = 0;
-					}
-					else if(path.locations[i] == locations[0] + glm::vec3(10, -10, 0)){
-						rotation_state = 1;
-					}
-					else if(path.locations[i] == locations[0] + glm::vec3(-10, -10, 0)){
-						rotation_state = 2;
-					}
-					else if(path.locations[i] == locations[0] + glm::vec3(0, -10, 10)){
-						rotation_state = 3;
-					}
-				}
-
+				if(locations[0] - glm::vec3(0, 10, 10) == )	
 			}
 		
 		}
