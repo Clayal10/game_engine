@@ -28,7 +28,8 @@ public:
 	 * 	2: -x left
 	 * 	3: +z back
 	 */
-	float bot_speed = 0.025f;
+	//float bot_speed = 0.025f;
+	float bot_speed = 0.1f;
 	float alive = false;
 	float moving = 0;
 
@@ -81,7 +82,7 @@ public:
 				for(long unsigned int i = 0; i<path.locations.size(); i++){
 					if(path.locations[i] == locations[0] + glm::vec3(0, -10, -10)){
 						for(int j=0; j<explored.size(); j++){
-							if(explored[i].x != locations[0].x || explored[i].z != locations[0].z-10){ // if not in explored
+							if(explored[j].x != locations[0].x || explored[j].z != locations[0].z-10){ // if not in explored
 								rotation_state = 0;
 								moving = 10;
 								break;
@@ -93,7 +94,7 @@ public:
 					}
 					if(path.locations[i] == locations[0] + glm::vec3(10, -10, 0)){
 						for(int j=0; j<explored.size(); j++){
-							if(explored[i].x != locations[0].x+10 || explored[i].z != locations[0].z){ // if not in explored
+							if(explored[j].x != locations[0].x+10 || explored[j].z != locations[0].z){ // if not in explored
 								rotation_state = 1;
 								moving = 10;
 								break;
@@ -105,7 +106,7 @@ public:
 					}
 					if(path.locations[i] == locations[0] + glm::vec3(-10, -10, 0)){
 						for(int j=0; j<explored.size(); j++){
-							if(explored[i].x != locations[0].x-10 || explored[i].z != locations[0].z){ // if not in explored
+							if(explored[j].x != locations[0].x-10 || explored[j].z != locations[0].z){ // if not in explored
 								rotation_state = 2;
 								moving = 10;
 								break;
@@ -117,7 +118,7 @@ public:
 					}
 					if(path.locations[i] == locations[0] + glm::vec3(0, -10, 10)){
 						for(int j=0; j<explored.size(); j++){
-							if(explored[i].x != locations[0].x || explored[i].z != locations[0].z+10){ // if not in explored
+							if(explored[j].x != locations[0].x || explored[j].z != locations[0].z+10){ // if not in explored
 								rotation_state = 3;
 								moving = 10;
 								break;
