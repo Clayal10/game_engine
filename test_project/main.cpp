@@ -87,9 +87,10 @@ void mouse_click_callback(GLFWwindow* window, int button, int action, int mods){
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
-	if(GLFW_KEY_Q == key){
-		cat_bot.locations.push_back(glm::vec3(0, 0, 200)); // location of first maze block
-		cat_bot.alive = true;
+	if(GLFW_KEY_Q == key && 1 == action){
+		//maybe make sure only one can be added?: don't think the others could do anything thoguh
+			cat_bot.locations.push_back(glm::vec3(0, 0, 200)); // location of first maze block
+			cat_bot.alive = true;
 	}
 	
 	if(GLFW_KEY_W == key && 1 == action){
@@ -345,7 +346,7 @@ int main(int argc, char** argv) {
 	glfwSetMouseButtonCallback(window, mouse_click_callback);
 
 	/* Set starting point */
-	player_position = glm::vec3(0, 10, 450);
+	player_position = glm::vec3(0, 10, 300);
 	player_heading = M_PI;
 
 
@@ -358,17 +359,6 @@ int main(int argc, char** argv) {
 	/*Maze path*/
 	pathway path;
 	pathway_end path_end;
-	for(int z = 200; z>100; z -= path.width)
-		path.locations.push_back(glm::vec3(0, -10, z));
-	for(int x =-40; x<100; x += path.width)
-		path.locations.push_back(glm::vec3(x, -10, 100));
-	for(int z=130; z > -30; z -= path.width)
-		path.locations.push_back(glm::vec3(100, -10, z));
-	for(int x=110; x > -40; x -= path.width)
-		path.locations.push_back(glm::vec3(x, -10, -30));
-	for(int z=-30; z < 70; z += path.width)
-		path.locations.push_back(glm::vec3(0, -10, z));
-	path_end.locations.push_back(glm::vec3(0, -10, 70));
 
 	objects.push_back(&path_end);
 	objects.push_back(&path);

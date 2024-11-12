@@ -16,4 +16,4 @@ test:	all
 	./a.out
 
 ${OBJS} : game.h
-main.o : projectiles.h activation_area.h turret.h tile_floor.h old_objects.h moving_platform.h geometric_objects.h hud.h
+main.o : projectiles.h activation_area.h turret.h tile_floor.h old_objects.h moving_platform.h geometric_objects.h hud.h bot.h pathway.h

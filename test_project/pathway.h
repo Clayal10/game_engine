@@ -5,14 +5,28 @@
 class pathway : public loaded_object{
 public:
 	double width = 10; // it is a cube
-	pathway() : loaded_object("path.obj", "brick.jpg", glm::vec3(width, 2, width)){}
+	pathway() : loaded_object("path.obj", "brick.jpg", glm::vec3(width, 2, width)){
+		//could push back all locations into locations here and just init this before bot.
+		for(int z = 200; z>100; z -= width)
+			locations.push_back(glm::vec3(0, -10, z));
+		for(int x =-40; x<100; x += width)
+			locations.push_back(glm::vec3(x, -10, 100));
+		for(int z=130; z > -30; z -= width)
+			locations.push_back(glm::vec3(100, -10, z));
+		for(int x=110; x > -40; x -= width)
+			locations.push_back(glm::vec3(x, -10, -30));
+		for(int z=-30; z <= 70; z += width)
+			locations.push_back(glm::vec3(0, -10, z));
+	}
 	
 };
 
 class pathway_end : public loaded_object{
 public:
 	double width = 10;
-	pathway_end() : loaded_object("finish_platform.obj", "beans.jpg", glm::vec3(width, 2, width)){}
+	pathway_end() : loaded_object("finish_platform.obj", "beans.jpg", glm::vec3(width, 2, width)){
+		locations.push_back(glm::vec3(0, -10, 70));
+	}
 };
 
 class path_walls : public wall_block{
