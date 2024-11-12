@@ -1,5 +1,14 @@
 /*
- 	Game engine for project 3, AI maze
+	PROJECT 4/5
+	4: make it so enemy can see you, have some sort of show for that. 
+		Have decent object placing?
+		hitting?
+		Damage?
+		Collection? similar to destruction
+	5: actually make bot hunt you down with decent AI
+		make maze very large
+		any other cool features like light
+
 */
 #define MAIN
 #include "game.h"
