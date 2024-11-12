@@ -7,6 +7,14 @@
 #include "game.h"
 #include "pathway.h"
 #include <math.h>
+#include <algorithm>
+
+bool operator==(const glm::vec3 &one, const glm::vec3 &two){
+	if(one.z == two.z && one.x == two.x)
+		return true;
+	return false;
+}
+
 class bot : public loaded_object{
 public:
 	float rotation = 0; // just assuming this is in degrees from 0 (looking -z)
@@ -20,8 +28,7 @@ public:
 	 * 	2: -x left
 	 * 	3: +z back
 	 */
-	float z_buffer = 5.0f; // this is the buffer since the obj file is kinda wack
-	float bot_speed = 0.1f;
+	float bot_speed = 0.025f;
 	float alive = false;
 	float moving = 0;
 
@@ -33,7 +40,17 @@ public:
 	}
 
 	pathway path;
-	
+
+	void kill_cat(){
+		locations.erase(locations.begin());
+		alive = false;
+		to_start.clear();
+		explored.clear();
+
+	}
+
+	float x_buff, z_buff;
+
 	void move(int elapsed_time){
 		//TODO Set up conditionals for hitting walls. TODO the AI
 		/*heading of M_PI is towards -z: may or may not be useful
@@ -44,10 +61,9 @@ public:
 		if(alive){
 			//check if at finish spot
 			if(locations[0].x == 0 && locations[0].z == 70){
-				locations[0].y += 1.0f;
-				if(locations[0].y > 100){
-					locations.erase(locations.begin());
-					alive = false;
+				locations[0].y += 0.5f;
+				if(locations[0].y > 200){
+					kill_cat();
 				}	
 			}
 			else if(moving > 0){	
@@ -55,62 +71,119 @@ public:
 			}
 			else{//if not finished with the maze, move; going to be a follow the left wall kinda dealio
 				/*USE ROUNDF TO ROUND LOCATIONS TO NEAREST INTEGER*/
-				
+				locations[0].x = roundf(locations[0].x);
+				locations[0].z = roundf(locations[0].z);
+				printf("X: %f Z: %f Face: %f\n", locations[0].x, locations[0].z, rotation);
 				
 				to_start.push_back(locations[0]); // we will pop off if needed here
 				explored.push_back(locations[0]); // we won't remove any glm::vec3 nodes
 				//check every location around and move if unexplored
 				for(long unsigned int i = 0; i<path.locations.size(); i++){
 					if(path.locations[i] == locations[0] + glm::vec3(0, -10, -10)){
-						rotation_state = 0;
-						moving = 10;
-						break;
+						for(int j=0; j<explored.size(); j++){
+							if(explored[i].x != locations[0].x || explored[i].z != locations[0].z-10){ // if not in explored
+								rotation_state = 0;
+								moving = 10;
+								break;
+							
+							}
+						}
+						//if(moving == 10)
+						//	break;
 					}
-					else if(path.locations[i] == locations[0] + glm::vec3(10, -10, 0)){
+					if(path.locations[i] == locations[0] + glm::vec3(10, -10, 0)){
+						for(int j=0; j<explored.size(); j++){
+							if(explored[i].x != locations[0].x+10 || explored[i].z != locations[0].z){ // if not in explored
+								rotation_state = 1;
+								moving = 10;
+								break;
+							
+							}
+						}
+						//if(moving == 10)
+						//	break;
+					}
+					if(path.locations[i] == locations[0] + glm::vec3(-10, -10, 0)){
+						for(int j=0; j<explored.size(); j++){
+							if(explored[i].x != locations[0].x-10 || explored[i].z != locations[0].z){ // if not in explored
+								rotation_state = 2;
+								moving = 10;
+								break;
+							
+							}
+						}
+						//if(moving == 10)
+						//	break;
+					}
+					if(path.locations[i] == locations[0] + glm::vec3(0, -10, 10)){
+						for(int j=0; j<explored.size(); j++){
+							if(explored[i].x != locations[0].x || explored[i].z != locations[0].z+10){ // if not in explored
+								rotation_state = 3;
+								moving = 10;
+								break;
+							
+							}
+						}
+						//if(moving == 10)
+						//	break;
+					}/*
+					//this section will only run if there are no available paths
+					if(i == path.locations.size()-1){puts("we out here");
+					to_start.pop_back(); // pops off current location, now the end is the previous one
+					x_buff = locations[0].x - to_start.back().x;
+					z_buff = locations[0].z - to_start.back().z;
+					if(x_buff < 0)
 						rotation_state = 1;
-						moving = 10;
-						break;
-					}
-					else if(path.locations[i] == locations[0] + glm::vec3(-10, -10, 0)){
+					else if(x_buff > 0)
 						rotation_state = 2;
-						moving = 10;
-						break;
-					}
-					else if(path.locations[i] == locations[0] + glm::vec3(0, -10, 10)){
+					else if(z_buff < 0)
 						rotation_state = 3;
-						moving = 10;
-						break;
-					}else{ // handle condition for no paths being available
-						
+					else if(z_buff > 0)
+						rotation_state = 0;
 					}
+					*/
+					
 				}
-
 			}
-		
 		}
-
-
-
 	}
 	void move_(int state){
-		//for(float i=0; i<10; i+= bot_speed){
-			if(state == 0){
-				locations[0].z -= bot_speed;
-				moving -= bot_speed;
+		if(state == 0){
+			locations[0].z -= bot_speed;
+			moving -= bot_speed;
+			if(fmod(rotation, (2*M_PI)) < 0.1){
+				rotation = 0.0f;
+			}else{
+				rotation += bot_speed/2;
 			}
-			else if(state == 1){
-				locations[0].x += bot_speed;
-				moving -= bot_speed;
+		}
+		else if(state == 1){
+			locations[0].x += bot_speed;
+			moving -= bot_speed;
+			if(fmod(rotation, ((3*M_PI)/2)) < 0.1 && rotation >= 0.1){
+				rotation = ((3*M_PI)/2);
+			}else{
+				rotation += bot_speed/2;
 			}
-			else if(state == 2){
-				locations[0].x -= bot_speed;
-				moving -= bot_speed;
+		}
+		else if(state == 2){
+			locations[0].x -= bot_speed;
+			moving -= bot_speed;
+			if(fmod(rotation, (M_PI/2)) < 0.1 && rotation >= 0.1){
+				rotation = M_PI/2;
+			}else{
+				rotation += bot_speed/2;
 			}
-			else if(state == 3){
-				locations[0].z += bot_speed;
-				moving -= bot_speed;
+		}
+		else if(state == 3){
+			locations[0].z += bot_speed;
+			moving -= bot_speed;
+			if(fmod(rotation, (M_PI)) < 0.1 && rotation >= 0.1){
+				rotation = M_PI;
+			}else{
+				rotation += bot_speed/2;
 			}
-		//}
+		}
 	}
 
 	std::vector<glm::mat4> create_models() override {

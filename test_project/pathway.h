@@ -13,10 +13,15 @@ public:
 			locations.push_back(glm::vec3(x, -10, 100));
 		for(int z=130; z > -30; z -= width)
 			locations.push_back(glm::vec3(100, -10, z));
-		for(int x=110; x > -40; x -= width)
+		for(int x=110; x > -50; x -= width)
 			locations.push_back(glm::vec3(x, -10, -30));
 		for(int z=-30; z <= 70; z += width)
-			locations.push_back(glm::vec3(0, -10, z));
+			locations.push_back(glm::vec3(0, -10, z)); // fake finish
+		//for(int z=-30; z < 70; z+= width)
+			//locations.push_back(glm::vec3(-50, -10, z)); // just to the side of finish
+		//for(int x=-50; x <= 0; x+=width)
+			//locations.push_back(glm::vec3(x, -10, 70));
+
 	}
 	
 };

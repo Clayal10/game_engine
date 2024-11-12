@@ -1,8 +1,8 @@
-#version 460
+#version 430
 
 in vec2 in_vertex;
 in vec2 in_texcoord;
-out vec4 gl_Position;
+//out vec4 gl_Position;
 out vec2 frag_texcoord;
 
 void main(void) {	

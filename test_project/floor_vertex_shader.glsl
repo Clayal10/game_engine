@@ -1,10 +1,10 @@
-#version 460
+#version 430
 
 in vec3 in_vertex;
 in vec2 in_texcoord;
 uniform mat4 mvp;
 out vec4 fcolor;
-out vec4 gl_Position;
+//out vec4 gl_Position;
 out vec2 f_texcoord;
 
 void main(void) {	
