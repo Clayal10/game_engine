@@ -25,14 +25,15 @@ public:
 	//float bot_speed = 0.1f;
 	float alive = false;
 	float moving = 0;
-	double health;
+	float love;
 	int dead_cats = 0;
 	std::vector<glm::vec3> explored;
+	std::vector<glm::vec3> to_start;
 
 	bot(double h, glm::vec3 spawn) : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(5, 5, 5)) {
 		scale = 0.25f;
 		swap_yz = true;
-		health = 100;
+		love = 0;
 		locations.push_back(spawn);
 		explored.push_back(spawn);
 	}
@@ -40,30 +41,69 @@ public:
 	pathway path;
 
 	void kill_cat(){
-		//TODO some cool thing for when it dies
 		locations.erase(locations.begin());
+		to_start.clear();
 		explored.clear();
 		alive = false;
 
 	}
+	//TODO make some thing for when it loves you
 
 	float x_buff, z_buff;
+
+	bool see_player(){
+		//TODO should have an fov.
+		//TODO some method for check if looking at each other. essentially: if cat_rotation == player_heading+ M_PI (with some fov for cat but not player)
+	
+
+		return false;
+	}
+	//check if look at eachother. if see_player && player_heading at cat
 
 	void move(int elapsed_time){
 		/*TODO add support for mulitple cats*/
 		
 		if(alive){
+
 			//check if at finish spot
-			if(health <= 0){
-				kill_cat();
+			if(love > 100){
+				kill_cat(); // follow method
 			}
 			else if(moving > 0){	
 				move_(rotation_state); 
+			}
+			if(see_player()){
+				if(love < 1){
+					//go to origin
+				while(to_start.size() >= 1){
+					to_start.pop_back();
+					if(to_start[to_start.size()-1].z < locations[0].z){
+						rotation_state = 0;
+						moving = 10;
+					}
+					else if(to_start[to_start.size()-1].z > locations[0].z){
+						rotation_state = 3;
+						moving = 10;
+					}
+					else if(to_start[to_start.size()-1].x < locations[0].x){
+						rotation_state = 1;
+						moving = 10;
+					}
+					else if(to_start[to_start.size()-1].x > locations[0].x){
+						rotation_state = 2;
+						moving = 10;
+					}
+				}
+
+				}
 			}
 			else{//if not finished with the maze, move; going to be a follow the left wall kinda dealio
 				/*USE ROUNDF TO ROUND LOCATIONS TO NEAREST INTEGER*/
 				locations[0].x = roundf(locations[0].x);
 				locations[0].z = roundf(locations[0].z);
+				explored.push_back(locations[0]);
+				to_start.push_back(locations[0]);
+				
 				//printf("X: %f Z: %f Face: %f\n", locations[0].x, locations[0].z, rotation);
 				
 				if(explored.size() == path.locations.size()){
@@ -75,7 +115,7 @@ public:
 				for(long unsigned int i = 0; i<path.locations.size(); i++){
 					//this will be for random movement, but if it sees the player TODO switch it up
 					if(path.locations[i] == locations[0] + glm::vec3(0, 0, -10)){
-						for(int j=0; j<explored.size(); j++){
+						for(long unsigned int j=0; j<explored.size(); j++){
 							if(explored[j].x != locations[0].x || explored[j].z != locations[0].z-10){ // if not in explored
 								rotation_state = 0;
 								moving = 10;
@@ -87,7 +127,7 @@ public:
 							break;
 					}
 					if(path.locations[i] == locations[0] + glm::vec3(10, 0, 0)){
-						for(int j=0; j<explored.size(); j++){
+						for(long unsigned int j=0; j<explored.size(); j++){
 							if(explored[j].x != locations[0].x+10 || explored[j].z != locations[0].z){ // if not in explored
 								rotation_state = 1;
 								moving = 10;
@@ -99,7 +139,7 @@ public:
 							break;
 					}
 					if(path.locations[i] == locations[0] + glm::vec3(-10, 0, 0)){
-						for(int j=0; j<explored.size(); j++){
+						for(long unsigned int j=0; j<explored.size(); j++){
 							if(explored[j].x != locations[0].x-10 || explored[j].z != locations[0].z){ // if not in explored
 								rotation_state = 2;
 								moving = 10;
@@ -111,7 +151,7 @@ public:
 							break;
 					}
 					if(path.locations[i] == locations[0] + glm::vec3(0, 0, 10)){
-						for(int j=0; j<explored.size(); j++){
+						for(long unsigned int j=0; j<explored.size(); j++){
 							if(explored[j].x != locations[0].x || explored[j].z != locations[0].z+10){ // if not in explored
 								rotation_state = 3;
 								moving = 10;
@@ -127,7 +167,7 @@ public:
 				}
 			}
 		}else{
-			for(int i=0; i<path.locations.size(); i++){
+			for(long unsigned int i=0; i<path.locations.size(); i++){
 				if(player_position.x > path.locations[i].x-5 && player_position.x < path.locations[i].x+5 && 
 						player_position.z > path.locations[i].z-5 && player_position.z < path.locations[i].z+5){
 					if(dead_cats == 0)
@@ -142,6 +182,7 @@ public:
 		}
 		return false;
 	}
+
 	void move_(int state){
 		if(state == 0){
 			locations[0].z -= bot_speed;
