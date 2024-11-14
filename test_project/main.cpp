@@ -33,7 +33,6 @@ int time_resolution = 10;
 int framecount = 0;
 std::vector<gameobject*> objects;
 projectile ice_balls;
-bot cat_bot;
 fragment brick_fragments;
 hud main_hud;
 
@@ -75,32 +74,32 @@ void fire(bool burst = false){
 
 void mouse_click_callback(GLFWwindow* window, int button, int action, int mods){
 	if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-		fire();
-	if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
-		fire(true);
-	if(button == 2 && action == GLFW_PRESS){
+		fire(); // do something like hit with this
+	if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS){
+		/*This will require the most work.*/
 		// Spawn a block
 		glm::vec3 look_at_point = 2.0f * glm::vec3(roundf(player_position.x/2.0f), roundf(player_position.y/2.0f), roundf(player_position.z/2.0f)) ;
 		look_at_point.x += 2.0f * roundf(4.0f * cosf(player_elevation) * sinf(player_heading));
 		look_at_point.y += 2.0f * roundf(4.0f * sinf(player_elevation));
 		look_at_point.z += 2.0f * roundf(4.0f * cosf(player_elevation) * cosf(player_heading));
 		if(!is_empty(look_at_point, 0.0f)){
+			puts("placed object?");
+			
+			/*
 			look_at_point = 2.0f * glm::vec3(roundf(player_position.x/2.0f), roundf(player_position.y/2.0f), roundf(player_position.z/2.0f)) ;
 			look_at_point.x += 2.0f * roundf(2.0f * cosf(player_elevation) * sinf(player_heading));
 			look_at_point.y += 2.0f * roundf(2.0f * sinf(player_elevation));
 			look_at_point.z += 2.0f * roundf(2.0f * cosf(player_elevation) * cosf(player_heading));
+			*/
 		}
-		if(is_empty(look_at_point, 0.0f))
-			cat_bot.locations.push_back(look_at_point);
+		if(is_empty(look_at_point, 0.0f)){
+			//cat_bot.locations.push_back(look_at_point);
+			puts("placed");
+		}
 	}
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
-	if(GLFW_KEY_Q == key && 1 == action){
-		//maybe make sure only one can be added?: don't think the others could do anything thoguh
-			cat_bot.locations.push_back(glm::vec3(0, 0, 200)); // location of first maze block
-			cat_bot.alive = true;
-	}
 	
 	if(GLFW_KEY_W == key && 1 == action){
 		player_key_status.forward = 1;
@@ -118,12 +117,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		player_key_status.left = action;
 	if(GLFW_KEY_D == key)
 		player_key_status.right = action;
+	/*for the game, will want to disable jumping and running, but will be fine through project 4 probably*/
+	
 	if(GLFW_KEY_SPACE == key){	
 		
 		if(player_platform || player_position.y < 0.1f + player_height){
 			player_fly = 0;
-			//player_fall_speed = 0.04f;
-			player_fall_speed = 0.2f;
+			player_fall_speed = 0.04f;
+			//player_fall_speed = 0.2f;
 
 			player_position.y += 1.0f;
 			player_platform = 0;
@@ -148,33 +149,33 @@ void player_movement(){
 		auto start = std::chrono::system_clock::now();
 		glm::vec3 step_to_point = player_position;
 		if(player_key_status.forward){
-			//step_to_point += 0.1f * glm::vec3(sinf(player_heading), 0, cosf(player_heading));
-			step_to_point += 0.6f * glm::vec3(sinf(player_heading), 0, cosf(player_heading));
+			step_to_point += 0.1f * glm::vec3(sinf(player_heading), 0, cosf(player_heading));
+			//step_to_point += 0.6f * glm::vec3(sinf(player_heading), 0, cosf(player_heading));
 
 		}
 		if(player_key_status.backward){
-			//step_to_point += 0.1f * glm::vec3(-sinf(player_heading), 0, -cosf(player_heading));
-			step_to_point += 0.6f * glm::vec3(-sinf(player_heading), 0, -cosf(player_heading));
+			step_to_point += 0.1f * glm::vec3(-sinf(player_heading), 0, -cosf(player_heading));
+			//step_to_point += 0.6f * glm::vec3(-sinf(player_heading), 0, -cosf(player_heading));
 
 		}
 		if(player_key_status.left){
-			//step_to_point += 0.05f * glm::vec3(sinf(player_heading + M_PI/2), 0, cosf(player_heading + M_PI/2));
-			step_to_point += 0.4f * glm::vec3(sinf(player_heading + M_PI / 2), 0, cosf(player_heading + M_PI / 2));
+			step_to_point += 0.05f * glm::vec3(sinf(player_heading + M_PI/2), 0, cosf(player_heading + M_PI/2));
+			//step_to_point += 0.4f * glm::vec3(sinf(player_heading + M_PI / 2), 0, cosf(player_heading + M_PI / 2));
 
 		}
 		if(player_key_status.right){
-			//step_to_point += 0.05f * glm::vec3(-sinf(player_heading + M_PI/2), 0, -cosf(player_heading + M_PI/2));
-			step_to_point += 0.4f * glm::vec3(-sinf(player_heading + M_PI / 2), 0, -cosf(player_heading + M_PI / 2));
+			step_to_point += 0.05f * glm::vec3(-sinf(player_heading + M_PI/2), 0, -cosf(player_heading + M_PI/2));
+			//step_to_point += 0.4f * glm::vec3(-sinf(player_heading + M_PI / 2), 0, -cosf(player_heading + M_PI / 2));
 
 		}
 		if(player_key_status.up){
-			//step_to_point += 0.05f * glm::vec3(0, 1, 0);
-			step_to_point += 0.3f * glm::vec3(0, 1, 0);
+			step_to_point += 0.05f * glm::vec3(0, 1, 0);
+			//step_to_point += 0.3f * glm::vec3(0, 1, 0);
 
 		}
 		if(player_key_status.down){
-			//step_to_point += 0.05f * glm::vec3(0, -1, 0);
-			step_to_point += 0.3f * glm::vec3(0, -1, 0);
+			step_to_point += 0.05f * glm::vec3(0, -1, 0);
+			//step_to_point += 0.3f * glm::vec3(0, -1, 0);
 
 		}
 		for(gameobject* o : objects) {
@@ -206,7 +207,7 @@ void player_movement(){
 			if(!player_platform->is_on_idx(player_position, player_platform_index, player_height))
 				player_platform = 0;
 		} else {
-			float floor_height = 0;
+			float floor_height = -10;
 			for(gameobject* o : objects) {
 				long ppi = o->is_on(player_position, player_height);
 				if(ppi != -1) {
@@ -382,14 +383,16 @@ int main(int argc, char** argv) {
 	/*Maze path*/
 	pathway path;
 	pathway_end path_end;
+	bot cat_bot(100, path_end.locations[0]); // calling bot here
 
 	objects.push_back(&path_end);
 	objects.push_back(&path);
 	
 	path_walls walls;
 	walls.create_walls(&path, &path_end,  glm::vec3(10, 0, 70), 14);
+	
+	
 	objects.push_back(&walls);
-
 
 	aimpoint main_aimpoint;
 	objects.push_back(&main_aimpoint);

@@ -15,8 +15,8 @@
 #include "scolor.hpp"
 
 #define _USE_MATH_DEFINES
-//#define GRAVITY 0.0001f
-#define GRAVITY 0.001f
+#define GRAVITY 0.0001f
+//#define GRAVITY 0.001f
 #define M_PI 3.14159265
 
 struct vertex {
@@ -103,7 +103,7 @@ public:
 /* Player globals */
 EXTERN glm::vec3 player_position;
 EXTERN float player_heading;
-EXTERN float player_height INIT(2);
+EXTERN float player_height INIT(10);
 EXTERN float player_elevation;
 EXTERN float player_fall_speed INIT(0);
 EXTERN gameobject *player_platform INIT(0);
