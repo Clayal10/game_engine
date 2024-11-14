@@ -70,7 +70,8 @@ public:
 					explored.clear();
 				}
 				
-				//check every location around and move if unexplored
+				//need to have some sort of 'junction' vector so it can go back if it gets stuck; impliment some sort of randomness for when it gets back to the junction
+				
 				for(long unsigned int i = 0; i<path.locations.size(); i++){
 					//this will be for random movement, but if it sees the player TODO switch it up
 					if(path.locations[i] == locations[0] + glm::vec3(0, 0, -10)){
@@ -82,6 +83,8 @@ public:
 							
 							}
 						}
+						if(moving == 10)
+							break;
 					}
 					if(path.locations[i] == locations[0] + glm::vec3(10, 0, 0)){
 						for(int j=0; j<explored.size(); j++){
@@ -92,6 +95,8 @@ public:
 							
 							}
 						}
+						if(moving == 10)
+							break;
 					}
 					if(path.locations[i] == locations[0] + glm::vec3(-10, 0, 0)){
 						for(int j=0; j<explored.size(); j++){
@@ -102,6 +107,8 @@ public:
 							
 							}
 						}
+						if(moving == 10)
+							break;
 					}
 					if(path.locations[i] == locations[0] + glm::vec3(0, 0, 10)){
 						for(int j=0; j<explored.size(); j++){
@@ -112,6 +119,8 @@ public:
 							
 							}
 						}
+						if(moving == 10)
+							break;
 					}
 					
 					
@@ -127,11 +136,17 @@ public:
 			}
 		}
 	}
+	bool close_enough(float one, float two){// using bot_speed as my margin of error
+		if(one < two+bot_speed && one > two-bot_speed){
+			return true;
+		}
+		return false;
+	}
 	void move_(int state){
 		if(state == 0){
 			locations[0].z -= bot_speed;
 			moving -= bot_speed;
-			if(fmod(rotation, (2*M_PI)) < 0.1){
+			if(close_enough(0, fmod(rotation, M_PI*2))){
 				rotation = 0.0f;
 			}else{
 				rotation += bot_speed/2;
@@ -140,7 +155,7 @@ public:
 		else if(state == 1){
 			locations[0].x += bot_speed;
 			moving -= bot_speed;
-			if(fmod(rotation, ((3*M_PI)/2)) < 0.1 && rotation >= 0.1){
+			if(close_enough((3*M_PI)/2, fmod(rotation, M_PI*2))){
 				rotation = ((3*M_PI)/2);
 			}else{
 				rotation += bot_speed/2;
@@ -149,7 +164,7 @@ public:
 		else if(state == 2){
 			locations[0].x -= bot_speed;
 			moving -= bot_speed;
-			if(fmod(rotation, (M_PI/2)) < 0.1 && rotation >= 0.1){
+			if(close_enough(M_PI/2, fmod(rotation, M_PI*2))){
 				rotation = M_PI/2;
 			}else{
 				rotation += bot_speed/2;
@@ -158,7 +173,7 @@ public:
 		else if(state == 3){
 			locations[0].z += bot_speed;
 			moving -= bot_speed;
-			if(fmod(rotation, (M_PI)) < 0.1 && rotation >= 0.1){
+			if(close_enough(M_PI, fmod(rotation, M_PI*2))){
 				rotation = M_PI;
 			}else{
 				rotation += bot_speed/2;
