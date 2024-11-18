@@ -27,6 +27,7 @@ public:
 	float moving = 0;
 	float love;
 	int dead_cats = 0;
+	bool run_away = false;
 	std::vector<glm::vec3> explored;
 	std::vector<glm::vec3> to_start;
 
@@ -54,7 +55,9 @@ public:
 	bool see_player(){
 		//TODO should have an fov.
 		//TODO some method for check if looking at each other. essentially: if cat_rotation == player_heading+ M_PI (with some fov for cat but not player)
-	
+		
+		if(locations[0].z > 85)
+			return true;
 
 		return false;
 	}
@@ -65,6 +68,41 @@ public:
 		
 		if(alive){
 
+			if(see_player()){
+				if(love < 1){
+					//go to origin
+					run_away = true;
+					while(to_start.size() >= 1){
+						if(moving > 0){
+							move_(rotation_state);
+						}else{
+						
+						to_start.pop_back();
+						if(to_start[to_start.size()-1].z < locations[0].z){
+							rotation_state = 0;
+							moving = 10;
+						}
+						else if(to_start[to_start.size()-1].z > locations[0].z){
+							rotation_state = 3;
+							moving = 10;
+						}
+						else if(to_start[to_start.size()-1].x < locations[0].x){
+							rotation_state = 2;
+							moving = 10;
+						}
+						else if(to_start[to_start.size()-1].x > locations[0].x){
+							rotation_state = 1;
+							moving = 10;
+						}
+						}
+						
+					}
+
+				}else{
+					//being skiddish
+				}
+			}
+			else{
 			//check if at finish spot
 			if(love > 100){
 				kill_cat(); // follow method
@@ -72,39 +110,15 @@ public:
 			else if(moving > 0){	
 				move_(rotation_state); 
 			}
-			if(see_player()){
-				if(love < 1){
-					//go to origin
-				while(to_start.size() >= 1){
-					to_start.pop_back();
-					if(to_start[to_start.size()-1].z < locations[0].z){
-						rotation_state = 0;
-						moving = 10;
-					}
-					else if(to_start[to_start.size()-1].z > locations[0].z){
-						rotation_state = 3;
-						moving = 10;
-					}
-					else if(to_start[to_start.size()-1].x < locations[0].x){
-						rotation_state = 1;
-						moving = 10;
-					}
-					else if(to_start[to_start.size()-1].x > locations[0].x){
-						rotation_state = 2;
-						moving = 10;
-					}
-				}
-
-				}
-			}
-			else{//if not finished with the maze, move; going to be a follow the left wall kinda dealio
+			
+			else{
 				/*USE ROUNDF TO ROUND LOCATIONS TO NEAREST INTEGER*/
 				locations[0].x = roundf(locations[0].x);
 				locations[0].z = roundf(locations[0].z);
 				explored.push_back(locations[0]);
 				to_start.push_back(locations[0]);
 				
-				//printf("X: %f Z: %f Face: %f\n", locations[0].x, locations[0].z, rotation);
+				printf("X: %f Z: %f Face: %f\n", locations[0].x, locations[0].z, rotation);
 				
 				if(explored.size() == path.locations.size()){
 					explored.clear();
@@ -165,6 +179,7 @@ public:
 					
 					
 				}
+			}
 			}
 		}else{
 			for(long unsigned int i=0; i<path.locations.size(); i++){
