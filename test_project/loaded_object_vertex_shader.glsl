@@ -1,4 +1,4 @@
-#version 430
+#version 460
 
 layout(packed, binding=0) buffer model_list {
 	mat4 models[];
