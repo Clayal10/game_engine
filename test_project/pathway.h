@@ -53,7 +53,7 @@ public:
 					if(x == path->locations[i].x && z == path->locations[i].z){break;}
 					else if(x == end->locations[0].x && z == end->locations[0].z){break;}
 					else if(i == path->locations.size()-1){ // made it to the end unscathed
-						locations.push_back(glm::vec3(x, 0, z));
+						//locations.push_back(glm::vec3(x, 0, z));
 					}
 				}
 			}

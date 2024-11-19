@@ -3,6 +3,14 @@
 	This bot only stays on the pathway
 	Need to make .obj file
 		Using cat, may need to check collision since the location is in "front" of the cat
+
+	11/18 notes:
+		-take a look at to_start vector, seems to miss the turn back home
+		-prevent it seeing through walls
+			-could have cat shoot invisible projectiles every so often, see if it hits the wall or goes near player
+				(already have some of that code)
+		-Think about placing objects nicely
+
 */
 #include "game.h"
 #include "pathway.h"
@@ -48,67 +56,72 @@ public:
 		alive = false;
 
 	}
-	//TODO make some thing for when it loves you
 
 	float x_buff, z_buff;
 
 	bool see_player(){
-		//TODO should have an fov.
-		//TODO some method for check if looking at each other. essentially: if cat_rotation == player_heading+ M_PI (with some fov for cat but not player)
-		
-		if(locations[0].z > 85)
+		if(fmod(rotation, M_PI*2) > fmod(player_heading, M_PI*2)-(M_PI/6) && fmod(rotation, M_PI*2) < fmod(player_heading, M_PI*2)+(M_PI/6)){
+			//need to check if there is a wall in the way
 			return true;
+		}
+
+
+		//if(locations[0].z > 85)
+		//	return true;
 
 		return false;
 	}
 	//check if look at eachother. if see_player && player_heading at cat
 
 	void move(int elapsed_time){
-		/*TODO add support for mulitple cats*/
-		
 		if(alive){
 
+			if(moving > 0){	
+				move_(rotation_state); 
+				return;
+			}
 			if(see_player()){
 				if(love < 1){
 					//go to origin
-					run_away = true;
-					while(to_start.size() >= 1){
-						if(moving > 0){
-							move_(rotation_state);
-						}else{
-						
-						to_start.pop_back();
-						if(to_start[to_start.size()-1].z < locations[0].z){
-							rotation_state = 0;
-							moving = 10;
-						}
-						else if(to_start[to_start.size()-1].z > locations[0].z){
-							rotation_state = 3;
-							moving = 10;
-						}
-						else if(to_start[to_start.size()-1].x < locations[0].x){
-							rotation_state = 2;
-							moving = 10;
-						}
-						else if(to_start[to_start.size()-1].x > locations[0].x){
-							rotation_state = 1;
-							moving = 10;
-						}
-						}
-						
-					}
-
-				}else{
+					run_away = true;		
+					puts("sees player");
+				}
+				else{
 					//being skiddish
 				}
 			}
-			else{
+			if(run_away){
+				puts("going back");
+			
+				to_start.pop_back();
+				if(to_start[to_start.size()-1].z < locations[0].z){
+					rotation_state = 0;
+					moving = 10;
+				}	
+				else if(to_start[to_start.size()-1].z > locations[0].z){
+					rotation_state = 3;
+					moving = 10;
+				}
+				else if(to_start[to_start.size()-1].x < locations[0].x){
+					rotation_state = 2;
+					moving = 10;
+				}
+				else if(to_start[to_start.size()-1].x > locations[0].x){
+					rotation_state = 1;
+					moving = 10;
+				}
+				if(to_start.size() == 1){
+					run_away = false;
+				}else{
+					return;
+				}
+			}		
+	
+
+			
 			//check if at finish spot
 			if(love > 100){
 				kill_cat(); // follow method
-			}
-			else if(moving > 0){	
-				move_(rotation_state); 
 			}
 			
 			else{
@@ -179,7 +192,7 @@ public:
 					
 					
 				}
-			}
+			
 			}
 		}else{
 			for(long unsigned int i=0; i<path.locations.size(); i++){
