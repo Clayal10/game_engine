@@ -17,6 +17,8 @@
 #include <math.h>
 #include <algorithm>
 
+#define speed 0.015f
+//#define speed 0.1f
 
 class bot : public loaded_object{
 public:
@@ -29,8 +31,7 @@ public:
 	 * 	2: -x left
 	 * 	3: +z back
 	 */
-	float bot_speed = 0.015f;
-	//float bot_speed = 0.1f;
+	float bot_speed = speed;
 	float alive = false;
 	float moving = 0;
 	float love;
@@ -83,7 +84,8 @@ public:
 			if(see_player()){
 				if(love < 1){
 					//go to origin
-					run_away = true;		
+					run_away = true;
+					bot_speed = 2*speed;
 					puts("sees player");
 				}
 				else{
@@ -112,6 +114,7 @@ public:
 				}
 				if(to_start.size() == 1){
 					run_away = false;
+					bot_speed = speed;
 				}else{
 					return;
 				}
