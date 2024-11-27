@@ -14,14 +14,17 @@
 */
 #include "game.h"
 #include "pathway.h"
+#include "projectiles.h"
 #include <math.h>
 #include <algorithm>
 
-#define speed 0.015f
-//#define speed 0.1f
+//#define speed 0.015f
+#define speed 0.1f
 
 class bot : public loaded_object{
 public:
+	projectile* vision; // used for vision
+
 	float rotation = 0; // just assuming this is in degrees from 0 (looking -z)
 	double time_buff;
 	int rotation_state = 0; // starts looking -z
@@ -40,12 +43,15 @@ public:
 	std::vector<glm::vec3> explored;
 	std::vector<glm::vec3> to_start;
 
+	int p;
+
 	bot(double h, glm::vec3 spawn) : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(5, 5, 5)) {
 		scale = 0.25f;
 		swap_yz = true;
 		love = 0;
 		locations.push_back(spawn);
 		explored.push_back(spawn);
+
 	}
 
 	pathway path;
@@ -60,10 +66,16 @@ public:
 
 	float x_buff, z_buff;
 
-	bool see_player(){
-		if(fmod(rotation, M_PI*2) > fmod(player_heading, M_PI*2)-(M_PI/6) && fmod(rotation, M_PI*2) < fmod(player_heading, M_PI*2)+(M_PI/6)){
-			//need to check if there is a wall in the way
-			return true;
+	bool see_player() {
+
+		//if(fmod(rotation, M_PI*2) > fmod(player_heading, M_PI*2)-(M_PI/6) && fmod(rotation, M_PI*2) < fmod(player_heading, M_PI*2)+(M_PI/6)){
+		p = vision->locations.size() - 1;
+		for (int i = 0; i < p; i++) {
+			if (vision->locations[i].x > player_position.x - 5 && vision->locations[i].x < player_position.x + 5
+				&& vision->locations[i].z > player_position.z - 5 && vision->locations[i].z < player_position.z + 5
+				&& vision->locations[i].y > player_position.y - 5 && vision->locations[i].y < player_position.y + 5) {
+				return true;
+			}
 		}
 
 
@@ -76,6 +88,12 @@ public:
 
 	void move(int elapsed_time){
 		if(alive){
+			//location, direction, lifetime, false
+			//vision->add_projectile(locations[0], player_position, 10000, false);
+			if(rotation_state == 0) vision->add_projectile(locations[0], 0, -5.0, 0.5f, 10000);
+			else if(rotation_state == 1) vision->add_projectile(locations[0], 3*M_PI/2, -5.0, 0.5f, 10000);
+			else if (rotation_state == 2) vision->add_projectile(locations[0], M_PI/2, -5.0, 0.5f, 10000);
+			else if (rotation_state == 3) vision->add_projectile(locations[0], M_PI, -5.0, 0.5f, 10000);
 
 			if(moving > 0){	
 				move_(rotation_state); 

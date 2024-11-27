@@ -5,7 +5,7 @@ class turret : public loaded_object {
 public:
 	size_t target_idx = 0;
 	gameobject *current_target; // Might be nice if this was a list
-	projectile *current_projectile;
+	projectile *vision;
 	int countdown = 0;
 	float rotation = 0;
 	bool active = false;
@@ -30,7 +30,7 @@ public:
 			return;
 		for(auto l : locations){
 			glm::vec3 target_location = current_target->locations[target_idx];
-			current_projectile->add_projectile(l, 0.2f * glm::normalize(target_location - l), 100000); 
+			vision->add_projectile(l, 0.2f * glm::normalize(target_location - l), 100000); 
 			target_idx++;
 			if(target_idx >= current_target->locations.size())
 				target_idx = 0;

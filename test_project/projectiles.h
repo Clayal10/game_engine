@@ -20,6 +20,7 @@ public:
 	void move(int elapsed_time) {
 		data_mutex.lock();
 		for(size_t i = 0; i < locations.size(); i++){
+
 			if(bursting[i])
 				directions[i].y -= 0.0002 * elapsed_time/1000.0f;
 			locations[i] += directions[i] * (elapsed_time/1000.0f);
