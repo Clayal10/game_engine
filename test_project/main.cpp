@@ -33,6 +33,7 @@ int time_resolution = 10;
 int framecount = 0;
 std::vector<gameobject*> objects;
 projectile ice_balls;
+projectile eye_balls;
 fragment brick_fragments;
 hud main_hud;
 
@@ -384,6 +385,7 @@ int main(int argc, char** argv) {
 	pathway path;
 	pathway_end path_end;
 	bot cat_bot(100, path_end.locations[0]); // calling bot here
+	cat_bot.vision = &ice_balls;
 
 	objects.push_back(&path_end);
 	objects.push_back(&path);

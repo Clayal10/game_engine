@@ -3,7 +3,7 @@
 
 #define path_width 10.0f
 #define wall_width 10.0f
-#define wall_height 40.0f
+#define wall_height 80.0f
 
 class pathway : public loaded_object{
 public:

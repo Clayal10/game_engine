@@ -4,11 +4,9 @@
 	Need to make .obj file
 		Using cat, may need to check collision since the location is in "front" of the cat
 
-	11/18 notes:
+	11/28 notes:
 		-take a look at to_start vector, seems to miss the turn back home
-		-prevent it seeing through walls
-			-could have cat shoot invisible projectiles every so often, see if it hits the wall or goes near player
-				(already have some of that code)
+			-When it phases inside the wall, the engine doesn't like when it shoots its vision balls
 		-Think about placing objects nicely
 
 */
@@ -69,11 +67,10 @@ public:
 	bool see_player() {
 
 		//if(fmod(rotation, M_PI*2) > fmod(player_heading, M_PI*2)-(M_PI/6) && fmod(rotation, M_PI*2) < fmod(player_heading, M_PI*2)+(M_PI/6)){
-		p = vision->locations.size() - 1;
+		p = vision->locations.size();
 		for (int i = 0; i < p; i++) {
-			if (vision->locations[i].x > player_position.x - 5 && vision->locations[i].x < player_position.x + 5
-				&& vision->locations[i].z > player_position.z - 5 && vision->locations[i].z < player_position.z + 5
-				&& vision->locations[i].y > player_position.y - 5 && vision->locations[i].y < player_position.y + 5) {
+			if (vision->locations[i].x > player_position.x - 10 && vision->locations[i].x < player_position.x + 10
+				&& vision->locations[i].z > player_position.z - 10 && vision->locations[i].z < player_position.z + 10) {
 				return true;
 			}
 		}
@@ -87,29 +84,28 @@ public:
 	//check if look at eachother. if see_player && player_heading at cat
 
 	void move(int elapsed_time){
+		//if (vision->locations.size() != 0) printf("Shot. Targets existing: %d\n", vision->locations.size());
 		if(alive){
-			//location, direction, lifetime, false
-			//vision->add_projectile(locations[0], player_position, 10000, false);
-			if(rotation_state == 0) vision->add_projectile(locations[0], 0, -5.0, 0.5f, 10000);
-			else if(rotation_state == 1) vision->add_projectile(locations[0], 3*M_PI/2, -5.0, 0.5f, 10000);
-			else if (rotation_state == 2) vision->add_projectile(locations[0], M_PI/2, -5.0, 0.5f, 10000);
-			else if (rotation_state == 3) vision->add_projectile(locations[0], M_PI, -5.0, 0.5f, 10000);
-
+			if (see_player() && !run_away) { // prevents from going through here every iteration
+				//puts("sees player");
+				if (love < 1) {
+					//go to origin
+					run_away = true;
+					//bot_speed = 2 * speed;
+					puts("From the start to current location");
+					for (int i = 0; i < to_start.size(); i++) {
+						printf("X: %f\tZ: %f\n", to_start[i].x, to_start[i].z);
+					}
+				}
+				else {
+					//being skiddish
+				}
+			}
 			if(moving > 0){	
 				move_(rotation_state); 
 				return;
 			}
-			if(see_player()){
-				if(love < 1){
-					//go to origin
-					run_away = true;
-					bot_speed = 2*speed;
-					puts("sees player");
-				}
-				else{
-					//being skiddish
-				}
-			}
+			
 			if(run_away){
 				puts("going back");
 			
@@ -146,6 +142,8 @@ public:
 			}
 			
 			else{
+
+				vision->add_projectile(locations[0] + glm::vec3(0, 10, 0), 0.05f * (player_position - locations[0] - glm::vec3(0, 10, 0)), 10000, false);
 				/*USE ROUNDF TO ROUND LOCATIONS TO NEAREST INTEGER*/
 				locations[0].x = roundf(locations[0].x);
 				locations[0].z = roundf(locations[0].z);

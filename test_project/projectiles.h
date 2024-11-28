@@ -23,7 +23,7 @@ public:
 
 			if(bursting[i])
 				directions[i].y -= 0.0002 * elapsed_time/1000.0f;
-			locations[i] += directions[i] * (elapsed_time/1000.0f);
+			locations[i] += directions[i] * (elapsed_time/10000.0f); // made this a little slower
 			lifetimes[i] -= 10 * elapsed_time/1000.0f; // TODO:  Manage time resolutions better
 			if(lifetimes[i] <= 0.0f) {
 				if(bursting[i])
