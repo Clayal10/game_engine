@@ -33,7 +33,6 @@ int time_resolution = 10;
 int framecount = 0;
 std::vector<gameobject*> objects;
 projectile ice_balls;
-projectile eye_balls;
 fragment brick_fragments;
 hud main_hud;
 
@@ -150,33 +149,33 @@ void player_movement(){
 		auto start = std::chrono::system_clock::now();
 		glm::vec3 step_to_point = player_position;
 		if(player_key_status.forward){
-			//step_to_point += 0.1f * glm::vec3(sinf(player_heading), 0, cosf(player_heading));
-			step_to_point += 0.6f * glm::vec3(sinf(player_heading), 0, cosf(player_heading));
+			step_to_point += 0.1f * glm::vec3(sinf(player_heading), 0, cosf(player_heading));
+			//step_to_point += 0.6f * glm::vec3(sinf(player_heading), 0, cosf(player_heading));
 
 		}
 		if(player_key_status.backward){
-			//step_to_point += 0.1f * glm::vec3(-sinf(player_heading), 0, -cosf(player_heading));
-			step_to_point += 0.6f * glm::vec3(-sinf(player_heading), 0, -cosf(player_heading));
+			step_to_point += 0.1f * glm::vec3(-sinf(player_heading), 0, -cosf(player_heading));
+			//step_to_point += 0.6f * glm::vec3(-sinf(player_heading), 0, -cosf(player_heading));
 
 		}
 		if(player_key_status.left){
-			//step_to_point += 0.05f * glm::vec3(sinf(player_heading + M_PI/2), 0, cosf(player_heading + M_PI/2));
-			step_to_point += 0.4f * glm::vec3(sinf(player_heading + M_PI / 2), 0, cosf(player_heading + M_PI / 2));
+			step_to_point += 0.05f * glm::vec3(sinf(player_heading + M_PI/2), 0, cosf(player_heading + M_PI/2));
+			//step_to_point += 0.4f * glm::vec3(sinf(player_heading + M_PI / 2), 0, cosf(player_heading + M_PI / 2));
 
 		}
 		if(player_key_status.right){
-			//step_to_point += 0.05f * glm::vec3(-sinf(player_heading + M_PI/2), 0, -cosf(player_heading + M_PI/2));
-			step_to_point += 0.4f * glm::vec3(-sinf(player_heading + M_PI / 2), 0, -cosf(player_heading + M_PI / 2));
+			step_to_point += 0.05f * glm::vec3(-sinf(player_heading + M_PI/2), 0, -cosf(player_heading + M_PI/2));
+			//step_to_point += 0.4f * glm::vec3(-sinf(player_heading + M_PI / 2), 0, -cosf(player_heading + M_PI / 2));
 
 		}
 		if(player_key_status.up){
-			//step_to_point += 0.05f * glm::vec3(0, 1, 0);
-			step_to_point += 0.3f * glm::vec3(0, 1, 0);
+			step_to_point += 0.05f * glm::vec3(0, 1, 0);
+			//step_to_point += 0.3f * glm::vec3(0, 1, 0);
 
 		}
 		if(player_key_status.down){
-			//step_to_point += 0.05f * glm::vec3(0, -1, 0);
-			step_to_point += 0.3f * glm::vec3(0, -1, 0);
+			step_to_point += 0.05f * glm::vec3(0, -1, 0);
+			//step_to_point += 0.3f * glm::vec3(0, -1, 0);
 
 		}
 		for(gameobject* o : objects) {

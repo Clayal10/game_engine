@@ -5,7 +5,8 @@ public:
 	std::vector<glm::vec3> directions;
 	std::vector<float> lifetimes;
 	std::vector<bool> bursting;
-	projectile() : loaded_object("projectile.obj", "projectile.jpg", glm::vec3(0.1, 0.1, 0.1)) {
+	//projectile() : loaded_object("projectile.obj", "projectile.jpg", glm::vec3(0.1, 0.1, 0.1)) {
+	projectile() : loaded_object("", "", glm::vec3(0.1, 0.1, 0.1)) {
 		collision_check = false;
 	}
 	void create_burst(float quantity, glm::vec3 origin, float speed){

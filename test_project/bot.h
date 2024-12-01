@@ -1,8 +1,5 @@
 #pragma once
 /*
-	This bot only stays on the pathway
-	Need to make .obj file
-		Using cat, may need to check collision since the location is in "front" of the cat
 
 	11/28 notes:
 		-take a look at to_start vector, seems to miss the turn back home
@@ -16,8 +13,8 @@
 #include <math.h>
 #include <algorithm>
 
-//#define speed 0.015f
-#define speed 0.1f
+#define speed 0.015f
+//#define speed 0.1f
 
 class bot : public loaded_object{
 public:
@@ -38,8 +35,10 @@ public:
 	float love;
 	int dead_cats = 0;
 	bool run_away = false;
+	bool last_location = false;
 	std::vector<glm::vec3> explored;
 	std::vector<glm::vec3> to_start;
+	std::vector<int> rotation_list;	
 
 	int p;
 
@@ -74,41 +73,77 @@ public:
 				return true;
 			}
 		}
-
-
-		//if(locations[0].z > 85)
-		//	return true;
-
 		return false;
 	}
-	//check if look at eachother. if see_player && player_heading at cat
+
+	int backwards(int rotation){
+		if(rotation == 0)return 3;
+		if(rotation == 1)return 2;
+		if(rotation == 2)return 1;
+		if(rotation == 3)return 0;
+		puts("INVALID ROTATION");
+		return -1;
+	}	
 
 	void move(int elapsed_time){
 		//if (vision->locations.size() != 0) printf("Shot. Targets existing: %d\n", vision->locations.size());
 		if(alive){
 			if (see_player() && !run_away) { // prevents from going through here every iteration
 				//puts("sees player");
-				if (love < 1) {
+				//if(love == 0){
+					//teleport back to start
+				//}
+				if (love < 20 && love >= 0) {//change >= to >
 					//go to origin
 					run_away = true;
-					//bot_speed = 2 * speed;
-					puts("From the start to current location");
-					for (int i = 0; i < to_start.size(); i++) {
-						printf("X: %f\tZ: %f\n", to_start[i].x, to_start[i].z);
+					bot_speed = 2 * speed;
+					puts("From the start to current location rotations");
+					for (long unsigned int i = 0; i < rotation_list.size(); i++) {
+						//printf("X: %f\tZ: %f\n", to_start[i].x, to_start[i].z);
+						printf("%d\n", rotation_list[i]);
 					}
 				}
-				else {
+				else if(love < 60 && love >= 20){
 					//being skiddish
+				}
+				else{
+					
 				}
 			}
 			if(moving > 0){	
 				move_(rotation_state); 
 				return;
+			}else if(!last_location){
+				locations[0].x = roundf(locations[0].x);
+				locations[0].z = roundf(locations[0].z);
+				explored.push_back(locations[0]);
+				to_start.push_back(locations[0]);
+				
+				printf("X: %f Z: %f Face: %f\n", locations[0].x, locations[0].z, rotation);
+				if(run_away){
+					last_location = true;
+				}
 			}
 			
 			if(run_away){
-				puts("going back");
-			
+/*Lets change this up:
+ what is happening:
+ 	as soon as it starts moving towards the home spot, it will shoot a ball since run_away is false, but it will hit the player before it gets home, this means run_away will be true before it gets home and adds another spot to rotation_list, causing it to send an invalid number
+ 
+ */
+				rotation_state = backwards(rotation_list[rotation_list.size()-1]);
+				rotation_list.pop_back();
+				moving = 10;
+
+				if(rotation_list.size() == 0){	
+					run_away = false;
+					last_location = false;
+					bot_speed = speed;
+					to_start.clear();
+
+				}else return;			
+					
+/*
 				to_start.pop_back();
 				if(to_start[to_start.size()-1].z < locations[0].z){
 					rotation_state = 0;
@@ -128,10 +163,13 @@ public:
 				}
 				if(to_start.size() == 1){
 					run_away = false;
+					last_location = false;
 					bot_speed = speed;
 				}else{
 					return;
+
 				}
+*/
 			}		
 	
 
@@ -145,18 +183,10 @@ public:
 
 				vision->add_projectile(locations[0] + glm::vec3(0, 10, 0), 0.05f * (player_position - locations[0] - glm::vec3(0, 10, 0)), 10000, false);
 				/*USE ROUNDF TO ROUND LOCATIONS TO NEAREST INTEGER*/
-				locations[0].x = roundf(locations[0].x);
-				locations[0].z = roundf(locations[0].z);
-				explored.push_back(locations[0]);
-				to_start.push_back(locations[0]);
-				
-				printf("X: %f Z: %f Face: %f\n", locations[0].x, locations[0].z, rotation);
 				
 				if(explored.size() == path.locations.size()){
 					explored.clear();
 				}
-				
-				//need to have some sort of 'junction' vector so it can go back if it gets stuck; impliment some sort of randomness for when it gets back to the junction
 				
 				for(long unsigned int i = 0; i<path.locations.size(); i++){
 					//this will be for random movement, but if it sees the player TODO switch it up
@@ -164,6 +194,7 @@ public:
 						for(long unsigned int j=0; j<explored.size(); j++){
 							if(explored[j].x != locations[0].x || explored[j].z != locations[0].z-10){ // if not in explored
 								rotation_state = 0;
+								rotation_list.push_back(rotation_state);
 								moving = 10;
 								break;
 							
@@ -176,6 +207,7 @@ public:
 						for(long unsigned int j=0; j<explored.size(); j++){
 							if(explored[j].x != locations[0].x+10 || explored[j].z != locations[0].z){ // if not in explored
 								rotation_state = 1;
+								rotation_list.push_back(rotation_state);
 								moving = 10;
 								break;
 							
@@ -188,6 +220,7 @@ public:
 						for(long unsigned int j=0; j<explored.size(); j++){
 							if(explored[j].x != locations[0].x-10 || explored[j].z != locations[0].z){ // if not in explored
 								rotation_state = 2;
+								rotation_list.push_back(rotation_state);
 								moving = 10;
 								break;
 							
@@ -200,6 +233,7 @@ public:
 						for(long unsigned int j=0; j<explored.size(); j++){
 							if(explored[j].x != locations[0].x || explored[j].z != locations[0].z+10){ // if not in explored
 								rotation_state = 3;
+								rotation_list.push_back(rotation_state);
 								moving = 10;
 								break;
 							
