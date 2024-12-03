@@ -23,6 +23,8 @@
 #include "pathway.h"
 #include "bot.h"
 
+#include<fstream>
+
 std::mutex grand_mutex;
 
 float height = 1600;
@@ -343,6 +345,7 @@ void debug_callback(GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLch
 		*/
 }
 
+
 int main(int argc, char** argv) {
 	init_helpers();
 	if(!glfwInit()) {
@@ -379,7 +382,9 @@ int main(int argc, char** argv) {
 	tile_floor fl;
 	objects.push_back(&ice_balls);
 	objects.push_back(&fl);
-
+	/*TODO CHANGE*/
+	ifstream fp;
+	fp.open("maze.txt");
 	/*Maze path*/
 	pathway path;
 	pathway_end path_end;

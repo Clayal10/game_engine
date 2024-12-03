@@ -8,6 +8,7 @@
 class pathway : public loaded_object{
 public:
 	pathway() : loaded_object("path.obj", "brick.jpg", glm::vec3(path_width, 2, path_width)){
+		/*
 		collision_check = true;
 		//could push back all locations into locations here and just init this before bot.
 		for(int z = 200; z>100; z -= path_width)
@@ -25,6 +26,7 @@ public:
 		for(int x=-50; x <= 0; x+=path_width)
 			locations.push_back(glm::vec3(x, -10, 70));
 
+		*/
 	}
 
 
@@ -35,7 +37,7 @@ public:
 class pathway_end : public loaded_object{
 public:
 	pathway_end() : loaded_object("finish_platform.obj", "beans.jpg", glm::vec3(path_width, 2, path_width)){
-		locations.push_back(glm::vec3(0, -10, 70));
+		//locations.push_back(glm::vec3(0, -10, 70));
 	}
 };
 
@@ -61,3 +63,6 @@ public:
 		}
 	}
 };
+
+/*Use a file reading system to create the maze like seth did.
+ * */
