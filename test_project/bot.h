@@ -68,8 +68,8 @@ public:
 		//if(fmod(rotation, M_PI*2) > fmod(player_heading, M_PI*2)-(M_PI/6) && fmod(rotation, M_PI*2) < fmod(player_heading, M_PI*2)+(M_PI/6)){
 		p = vision->locations.size();
 		for (int i = 0; i < p; i++) {
-			if (vision->locations[i].x > player_position.x - 10 && vision->locations[i].x < player_position.x + 10
-				&& vision->locations[i].z > player_position.z - 10 && vision->locations[i].z < player_position.z + 10) {
+			if (vision->locations[i].x > player_position.x - 5 && vision->locations[i].x < player_position.x + 5
+				&& vision->locations[i].z > player_position.z - 5 && vision->locations[i].z < player_position.z + 5) {
 				return true;
 			}
 		}
@@ -85,6 +85,23 @@ public:
 		return -1;
 	}	
 
+	bool viable(glm::vec3 location){
+		//These are flags where if both are true, do a condition
+		bool ex = false;
+		bool pa = false;
+		//TODO fiddle around with this till it makes sense
+		for(long unsigned int i = 0; i<explored.size(); i++){
+			if(location.x + glm::vec3(10, 0, 0) == explored[i]){ //do for all directions
+			
+			}
+		}
+		for(long unsigned int i = 0; i<path.locations.size(); i++){
+			if(location.x + glm::vec3(10, 0, 0) != path.locations[i]){ //do for all directions
+			
+			}
+		}
+	}
+
 	void move(int elapsed_time){
 		//if (vision->locations.size() != 0) printf("Shot. Targets existing: %d\n", vision->locations.size());
 		if(alive){
@@ -96,7 +113,7 @@ public:
 				if (love < 20 && love >= 0) {//change >= to >
 					//go to origin
 					run_away = true;
-					bot_speed = 2 * speed;
+					bot_speed = 3 * speed;
 					puts("From the start to current location rotations");
 					for (long unsigned int i = 0; i < rotation_list.size(); i++) {
 						//printf("X: %f\tZ: %f\n", to_start[i].x, to_start[i].z);
@@ -180,8 +197,10 @@ public:
 			}
 			
 			else{
-
-				vision->add_projectile(locations[0] + glm::vec3(0, 10, 0), 0.05f * (player_position - locations[0] - glm::vec3(0, 10, 0)), 10000, false);
+				/*Need the cat to not shoot right away to fix a bug*/
+				if(to_start.size() > 1){
+					vision->add_projectile(locations[0] + glm::vec3(0, 10, 0), 0.05f * (player_position - locations[0] - glm::vec3(0, 10, 0)), 10000, false);
+				}
 				/*USE ROUNDF TO ROUND LOCATIONS TO NEAREST INTEGER*/
 				
 				if(explored.size() == path.locations.size()){
@@ -242,6 +261,7 @@ public:
 						if(moving == 10)
 							break;
 					}
+
 					
 					
 				}
