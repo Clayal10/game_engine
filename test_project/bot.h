@@ -117,6 +117,19 @@ public:
 			}
 		}
 	}
+	/*Helper for floating point comparison*/
+	bool close_enough(float one, float two){// using bot_speed as my margin of error
+		if(one < two+bot_speed && one > two-bot_speed){
+			return true;
+		}
+		return false;
+	}
+	bool close_enough_large(float one, float two){// using bot_speed as my margin of error
+		if(one < two+5.0f && one > two-5.0f){
+			return true;
+		}
+		return false;
+	}
 	/*TODO Check for if treat is in the tile*/
 	bool collect_treat(){
 		
@@ -126,12 +139,13 @@ public:
 
 	/*End conditional for the game*/
 	bool win_check(){ // cat is not on the pathway
-		if(locations[0] == spawn_point) return false;
+		if(close_enough_large(locations[0].x, spawn_point.x) && close_enough_large(locations[0].z, spawn_point.z)) return false;
 		for(glm::vec3 place : path.locations){
-			if(locations[0] == place) return false;
+			if(close_enough_large(locations[0].x, place.x) && close_enough_large(locations[0].z, place.z)) return false;
 		}
 		return true;
 	}
+
 	
 	/*This is where all movement and logic happens. This is ran every 'frame'*/
 	void move(int elapsed_time){
@@ -286,13 +300,6 @@ public:
 			}
 		}
 	}
-	bool close_enough(float one, float two){// using bot_speed as my margin of error
-		if(one < two+bot_speed && one > two-bot_speed){
-			return true;
-		}
-		return false;
-	}
-
 	void move_(int state){
 		if(state == 0){
 			locations[0].z -= bot_speed;
