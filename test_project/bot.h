@@ -1,10 +1,9 @@
 #pragma once
 /*
-
-	11/28 notes:
-		-take a look at to_start vector, seems to miss the turn back home
-			-When it phases inside the wall, the engine doesn't like when it shoots its vision balls
-		-Think about placing objects nicely
+	12/3 notes: For the final project
+		The bot movement AI is pretty trash, need to redo that.
+		Need to have a placement of a treat function. just by using right click and snap to the ground probably.
+		Change around the Love score conditionals
 
 */
 #include "game.h"
@@ -16,9 +15,23 @@
 #define speed 0.015f
 //#define speed 0.1f
 
+class Treat : public loaded_object{
+public:
+	/*This will be a placable object*/
+
+	Treat() : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(1, 1, 1)){
+		swap_yz = true;
+		scale = 0.1f;
+	}
+
+};
+
+
+
 class bot : public loaded_object{
 public:
 	projectile* vision; // used for vision
+	Treat* treat;
 
 	float rotation = 0; // just assuming this is in degrees from 0 (looking -z)
 	double time_buff;
@@ -42,17 +55,20 @@ public:
 
 	int p;
 
-	bot(double h, glm::vec3 spawn) : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(5, 5, 5)) {
+	pathway path;
+	glm::vec3 spawn_point;
+
+	bot(double h, glm::vec3 spawn, std::vector<glm::vec3> path_locations) : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(5, 5, 5)) {
 		scale = 0.25f;
 		swap_yz = true;
 		love = 0;
 		locations.push_back(spawn);
 		explored.push_back(spawn);
-
+		path.locations = path_locations;
+		spawn_point = spawn;
 	}
 
-	pathway path;
-
+	/*TODO unused, should have functinality changed*/
 	void kill_cat(){
 		locations.erase(locations.begin());
 		to_start.clear();
@@ -62,7 +78,7 @@ public:
 	}
 
 	float x_buff, z_buff;
-
+	/*Logic check*/
 	bool see_player() {
 
 		//if(fmod(rotation, M_PI*2) > fmod(player_heading, M_PI*2)-(M_PI/6) && fmod(rotation, M_PI*2) < fmod(player_heading, M_PI*2)+(M_PI/6)){
@@ -75,7 +91,7 @@ public:
 		}
 		return false;
 	}
-
+	/*Helper for the bot to back track TODO may need to modify*/
 	int backwards(int rotation){
 		if(rotation == 0)return 3;
 		if(rotation == 1)return 2;
@@ -84,7 +100,7 @@ public:
 		puts("INVALID ROTATION");
 		return -1;
 	}	
-
+	/*Helper for AI for finding the next location*/
 	bool viable(glm::vec3 location){
 		//These are flags where if both are true, do a condition
 		bool ex = false;
@@ -101,9 +117,24 @@ public:
 			}
 		}
 	}
+	/*TODO Check for if treat is in the tile*/
+	bool collect_treat(){
+		
+	
+		return false;
+	}
 
+	/*End conditional for the game*/
+	bool win_check(){ // cat is not on the pathway
+		if(locations[0] == spawn_point) return false;
+		for(glm::vec3 place : path.locations){
+			if(locations[0] == place) return false;
+		}
+		return true;
+	}
+	
+	/*This is where all movement and logic happens. This is ran every 'frame'*/
 	void move(int elapsed_time){
-		//if (vision->locations.size() != 0) printf("Shot. Targets existing: %d\n", vision->locations.size());
 		if(alive){
 			if (see_player() && !run_away) { // prevents from going through here every iteration
 				//puts("sees player");
@@ -160,43 +191,20 @@ public:
 
 				}else return;			
 					
-/*
-				to_start.pop_back();
-				if(to_start[to_start.size()-1].z < locations[0].z){
-					rotation_state = 0;
-					moving = 10;
-				}	
-				else if(to_start[to_start.size()-1].z > locations[0].z){
-					rotation_state = 3;
-					moving = 10;
-				}
-				else if(to_start[to_start.size()-1].x < locations[0].x){
-					rotation_state = 2;
-					moving = 10;
-				}
-				else if(to_start[to_start.size()-1].x > locations[0].x){
-					rotation_state = 1;
-					moving = 10;
-				}
-				if(to_start.size() == 1){
-					run_away = false;
-					last_location = false;
-					bot_speed = speed;
-				}else{
-					return;
-
-				}
-*/
 			}		
 	
 
 			
 			//check if at finish spot
-			if(love > 100){
+			if(love >= 100){
 				kill_cat(); // follow method
 			}
 			
 			else{
+				if(win_check()){
+					puts("You Won!!!");
+				}
+				
 				/*Need the cat to not shoot right away to fix a bug*/
 				if(to_start.size() > 1){
 					vision->add_projectile(locations[0] + glm::vec3(0, 10, 0), 0.05f * (player_position - locations[0] - glm::vec3(0, 10, 0)), 10000, false);
@@ -208,7 +216,8 @@ public:
 				}
 				
 				for(long unsigned int i = 0; i<path.locations.size(); i++){
-					//this will be for random movement, but if it sees the player TODO switch it up
+					/*TODO clean up this whole mess. Goal for tomorrow*/
+					
 					if(path.locations[i] == locations[0] + glm::vec3(0, 0, -10)){
 						for(long unsigned int j=0; j<explored.size(); j++){
 							if(explored[j].x != locations[0].x || explored[j].z != locations[0].z-10){ // if not in explored

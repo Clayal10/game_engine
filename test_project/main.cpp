@@ -1,15 +1,3 @@
-/*
-	PROJECT 4/5
-	4: make it so enemy can see you, have some sort of show for that. 
-		Have decent object placing?
-		hitting?
-		Damage?
-		Collection? similar to destruction
-	5: actually make bot hunt you down with decent AI
-		make maze very large
-		any other cool features like light
-
-*/
 #define MAIN
 #include "game.h"
 
@@ -24,6 +12,7 @@
 #include "bot.h"
 
 #include<fstream>
+#include<sstream>
 
 std::mutex grand_mutex;
 
@@ -37,6 +26,7 @@ std::vector<gameobject*> objects;
 projectile ice_balls;
 fragment brick_fragments;
 hud main_hud;
+Treat treat;
 
 class target : public loaded_object, public block_object {
 	public:
@@ -75,8 +65,6 @@ void fire(bool burst = false){
 }
 
 void mouse_click_callback(GLFWwindow* window, int button, int action, int mods){
-	if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-		fire(); // do something like hit with this
 	if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS){
 		/*This will require the most work.*/
 		// Spawn a block
@@ -85,7 +73,7 @@ void mouse_click_callback(GLFWwindow* window, int button, int action, int mods){
 		look_at_point.y += 2.0f * roundf(4.0f * sinf(player_elevation));
 		look_at_point.z += 2.0f * roundf(4.0f * cosf(player_elevation) * cosf(player_heading));
 		if(!is_empty(look_at_point, 0.0f)){
-			puts("placed object?");
+			puts("placed object? BAD");
 			
 			/*
 			look_at_point = 2.0f * glm::vec3(roundf(player_position.x/2.0f), roundf(player_position.y/2.0f), roundf(player_position.z/2.0f)) ;
@@ -95,7 +83,9 @@ void mouse_click_callback(GLFWwindow* window, int button, int action, int mods){
 			*/
 		}
 		if(is_empty(look_at_point, 0.0f)){
-			//cat_bot.locations.push_back(look_at_point);
+			look_at_point.y = -10;
+
+			treat.locations.push_back(look_at_point);
 			puts("placed");
 		}
 	}
@@ -373,7 +363,7 @@ int main(int argc, char** argv) {
 	glfwSetMouseButtonCallback(window, mouse_click_callback);
 
 	/* Set starting point */
-	player_position = glm::vec3(0, 10, 300);
+	player_position = glm::vec3(10, 10, 500);
 	player_heading = M_PI;
 
 
@@ -382,20 +372,47 @@ int main(int argc, char** argv) {
 	tile_floor fl;
 	objects.push_back(&ice_balls);
 	objects.push_back(&fl);
-	/*TODO CHANGE*/
-	ifstream fp;
-	fp.open("maze.txt");
 	/*Maze path*/
 	pathway path;
 	pathway_end path_end;
-	bot cat_bot(100, path_end.locations[0]); // calling bot here
+	path_walls walls;
+	
+	std::ifstream fp;
+	fp.open("maze.txt");
+
+	if(!fp){
+		puts(RED("Maze could not be opened!\n").c_str());
+		exit(-1);
+	}
+	std::string buffer;
+	glm::vec3 place = glm::vec3(0, 0, 0);
+	while(getline(fp, buffer, '\n')){
+		//std::stringstream s(buffer);
+		for(char c : buffer){
+			if(c == '#'){
+				walls.locations.push_back(place + glm::vec3(0, 10, 0));
+			}else if(c == ' '){
+				path.locations.push_back(place + glm::vec3(0, -10, 0));
+			}else if(c == 'b'){
+				path_end.locations.push_back(place + glm::vec3(0, -10, 0));
+			}else{
+				puts(RED("Invalid character in maze file!\n").c_str());
+				return -1;
+			}
+			place.x += 10;
+		}
+		place.z += 10;
+		place.x = 0;
+	}
+	fp.close();
+	/*Cat Bot*/
+	bot cat_bot(100, path_end.locations[0], path.locations);
 	cat_bot.vision = &ice_balls;
 
 	objects.push_back(&path_end);
 	objects.push_back(&path);
 	
-	path_walls walls;
-	walls.create_walls(&path, &path_end,  glm::vec3(10, 0, 70), 14);
+	//walls.create_walls(&path, &path_end,  glm::vec3(10, 0, 70), 14);
 	
 	
 	objects.push_back(&walls);
@@ -404,6 +421,7 @@ int main(int argc, char** argv) {
 	objects.push_back(&main_aimpoint);
 	objects.push_back(&main_hud);
 	objects.push_back(&cat_bot);
+	objects.push_back(&treat);
 
 	/* Initialize game objects */
 	for(gameobject* o : objects){

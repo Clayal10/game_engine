@@ -8,8 +8,9 @@
 class pathway : public loaded_object{
 public:
 	pathway() : loaded_object("path.obj", "brick.jpg", glm::vec3(path_width, 2, path_width)){
-		/*
+		
 		collision_check = true;
+		/*
 		//could push back all locations into locations here and just init this before bot.
 		for(int z = 200; z>100; z -= path_width)
 			locations.push_back(glm::vec3(0, -10, z));
@@ -43,8 +44,8 @@ public:
 
 class path_walls : public wall_block{
 public:
-	path_walls() : wall_block("path_walls.obj", "wall.jpeg", glm::vec3(wall_width, wall_height, wall_width)){collision_check = true;}
-	//path_walls() : wall_block("", "wall.jpeg", glm::vec3(wall_width, wall_height, wall_width)){collision_check = true;}
+	//path_walls() : wall_block("path_walls.obj", "wall.jpeg", glm::vec3(wall_width, wall_height, wall_width)){collision_check = true;}
+	path_walls() : wall_block("", "wall.jpeg", glm::vec3(wall_width, wall_height, wall_width)){collision_check = true;}
 
 
 	void create_walls(pathway* path, pathway_end* end, glm::vec3 center, int radius){ // center is the center of a 10x10 tile, radius is * pathway_width
