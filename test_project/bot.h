@@ -49,10 +49,12 @@ public:
 	int dead_cats = 0;
 	bool run_away = false;
 	bool last_location = false;
+	bool searching_for_player = true;
+	bool loves_player = false;
 	std::vector<glm::vec3> explored;
 	std::vector<glm::vec3> to_start;
 	std::vector<int> rotation_list;	
-
+	std::vector<glm::vec3> neighbors;
 	int p;
 
 	pathway path;
@@ -61,7 +63,7 @@ public:
 	bot(double h, glm::vec3 spawn, std::vector<glm::vec3> path_locations) : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(5, 5, 5)) {
 		scale = 0.25f;
 		swap_yz = true;
-		love = 0;
+		love = 100;
 		locations.push_back(spawn);
 		explored.push_back(spawn);
 		path.locations = path_locations;
@@ -78,6 +80,14 @@ public:
 	}
 
 	float x_buff, z_buff;
+	void update_neighbors(std::vector<glm::vec3>* neighbors){
+		neighbors->clear()
+		neighbors->push_back(locations[0] + glm::vec3(10, 0, 0));
+		neighbors->push_back(locations[0] + glm::vec3(-10, 0, 0));
+		neighbors->push_back(locations[0] + glm::vec3(0, 0, 10));
+		neighbors->push_back(locations[0] + glm::vec3(0, 0, 10));
+	}
+
 	/*Logic check*/
 	bool see_player() {
 
@@ -131,10 +141,15 @@ public:
 		return false;
 	}
 	/*TODO Check for if treat is in the tile*/
-	bool collect_treat(){
-		
+	int collect_treat(){
+		//for(glm::vec3 place : treat->locations){
+		for(long unsigned int idx = 0; idx<treat->locations.size(); idx++){
+			if(close_enough_large(treat->locations[idx].x, locations[0].x) && close_enough_large(treat->locations[idx].z, locations[0].z)){
+				return idx;
+			}
+		}
 	
-		return false;
+		return -1;
 	}
 
 	/*End conditional for the game*/
@@ -145,17 +160,75 @@ public:
 		}
 		return true;
 	}
+	
+	int closest_interval(float heading){ // returns rotation_direction
+		float buffer;
+		float ans = 1000000.0f; // worst case
+		int idx = 0;
+		//for(int i=-M_PI; i<M_PI + 0.1; i+= M_PI/2){
+		for(int i=0; i<5; i++){
+			buffer = fabs(heading - (i*(M_PI/2) - M_PI));
+			//printf("BUFFER: %f\n", buffer);
+			if(buffer < ans){
+				ans = buffer;
+				idx = i;
+			}
+		}
+		int answer;
+		switch(idx){
+			case 0:
+				answer = 1;
+				break;
+			case 1:
+				answer = 3;
+				break;
+			case 2:
+				answer = 2;
+				break;
+			case 3: 
+				answer = 0;
+				break;
+			case 4:
+				answer = 1;
+				break;
+		}
+		return answer;
 
+
+	}
 	
 	/*This is where all movement and logic happens. This is ran every 'frame'*/
+	int treat_idx;
+	float player_dir; // in radians
+	glm::vec3 place_from_state(glm::vec3 place, int rotation_state){
+		glm::vec3 return_place;
+		switch(rotation_state){
+			case 0:
+				return_place = place + glm::vec3(0, 0, -10);
+				break;
+			case 1:
+				return_place = place + glm::vec3(10, 0, 0);
+				break;
+			case 2:
+				return_place = place + glm::vec3(-10, 0, 0);
+				break;
+			case 3:
+				return_place = place + glm::vec3(0, 0, 10);
+				break;
+		}
+	}
 	void move(int elapsed_time){
 		if(alive){
+			treat_idx = collect_treat();
+			if(treat_idx != -1){
+				puts("FOUND TREAT");
+				treat->locations.erase(treat->locations.begin()+treat_idx);
+				love += 5;
+
+			}
 			if (see_player() && !run_away) { // prevents from going through here every iteration
 				//puts("sees player");
-				//if(love == 0){
-					//teleport back to start
-				//}
-				if (love < 20 && love >= 0) {//change >= to >
+				if (love < 20) {//change >= to >
 					//go to origin
 					run_away = true;
 					bot_speed = 3 * speed;
@@ -167,9 +240,11 @@ public:
 				}
 				else if(love < 60 && love >= 20){
 					//being skiddish
+					searching_for_player = false;
+
 				}
-				else{
-					
+				else if(love >= 60){
+					loves_player = true;
 				}
 			}
 			if(moving > 0){	
@@ -186,13 +261,26 @@ public:
 					last_location = true;
 				}
 			}
-			
+			/*Once we succeed, everything is skipped after this*/
+			//player_dir = atan2(player_position.z-locations[0].z , player_position.x-locations[0].x);
+			//printf("Player angle: %f\n", player_dir);
+			if(loves_player){	
+				player_dir = atan2(locations[0].z - player_position.z , locations[0].x-player_position.x);
+				//printf("PLayer Heading from Cat: %f\n", player_dir);
+				update_neighbors(&neighbors);
+				rotation_state = closest_interval(player_dir);
+				for(glm::vec3 place : path.locations){
+				//TODO TODO TODO
+				}
+				//printf("New Rotation State: %d\n", rotation_state);
+				
+				
+				moving = 10;
+
+				return;
+			}
 			if(run_away){
-/*Lets change this up:
- what is happening:
- 	as soon as it starts moving towards the home spot, it will shoot a ball since run_away is false, but it will hit the player before it gets home, this means run_away will be true before it gets home and adds another spot to rotation_list, causing it to send an invalid number
  
- */
 				rotation_state = backwards(rotation_list[rotation_list.size()-1]);
 				rotation_list.pop_back();
 				moving = 10;
@@ -205,16 +293,7 @@ public:
 
 				}else return;			
 					
-			}		
-	
-
-			
-			//check if at finish spot
-			if(love >= 100){
-				kill_cat(); // follow method
-			}
-			
-			else{
+			}else{
 				if(win_check()){
 					puts("You Won!!!");
 				}
@@ -228,9 +307,14 @@ public:
 				if(explored.size() == path.locations.size()){
 					explored.clear();
 				}
+				/*New Movement AI*/
+				//update_neighbors(&neighbors);
 				
+
+				
+
+				///*
 				for(long unsigned int i = 0; i<path.locations.size(); i++){
-					/*TODO clean up this whole mess. Goal for tomorrow*/
 					
 					if(path.locations[i] == locations[0] + glm::vec3(0, 0, -10)){
 						for(long unsigned int j=0; j<explored.size(); j++){
@@ -288,6 +372,7 @@ public:
 					
 					
 				}
+				//*/
 			
 			}
 		}else{

@@ -32,7 +32,22 @@ public:
 
 
 
+
 	
+};
+
+class trigger_block : public loaded_object{
+	bool start = false;
+	bool end = false;
+	trigger_block() : loaded_object("path.obj", "beans.jpg", glm::vec3(path_width, 2, path_width)){	
+		collision_check = true;
+	}
+	void start_trigger(){
+		start = true;
+	}
+	void end_trigger(){
+		end = true;
+	}
 };
 
 class pathway_end : public loaded_object{

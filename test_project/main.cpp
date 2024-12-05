@@ -375,6 +375,8 @@ int main(int argc, char** argv) {
 	/*Maze path*/
 	pathway path;
 	pathway_end path_end;
+	//trigger_block start_block;
+	//trigger_block end_block
 	path_walls walls;
 	
 	std::ifstream fp;
@@ -395,7 +397,17 @@ int main(int argc, char** argv) {
 				path.locations.push_back(place + glm::vec3(0, -10, 0));
 			}else if(c == 'b'){
 				path_end.locations.push_back(place + glm::vec3(0, -10, 0));
-			}else{
+			}
+			/*
+			else if(c == 's'){
+				start_block.locations.push_back(place + glm::vec3(0, -10, 0));
+				start_block.start_trigger();
+			}else if(c == 'e'){
+				end_block.locations.push_back(place + glm::vec3(0, -10, 0));
+				end_block.end_trigger();
+			}
+			*/
+			else{
 				puts(RED("Invalid character in maze file!\n").c_str());
 				return -1;
 			}
@@ -408,9 +420,13 @@ int main(int argc, char** argv) {
 	/*Cat Bot*/
 	bot cat_bot(100, path_end.locations[0], path.locations);
 	cat_bot.vision = &ice_balls;
+	cat_bot.treat = &treat;
 
 	objects.push_back(&path_end);
 	objects.push_back(&path);
+	//objects.push_back(&start_block);
+	//objects.push_back(&end_block);
+
 	
 	//walls.create_walls(&path, &path_end,  glm::vec3(10, 0, 70), 14);
 	
@@ -420,8 +436,8 @@ int main(int argc, char** argv) {
 	aimpoint main_aimpoint;
 	objects.push_back(&main_aimpoint);
 	objects.push_back(&main_hud);
-	objects.push_back(&cat_bot);
 	objects.push_back(&treat);
+	objects.push_back(&cat_bot);
 
 	/* Initialize game objects */
 	for(gameobject* o : objects){
