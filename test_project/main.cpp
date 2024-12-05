@@ -25,7 +25,6 @@ int framecount = 0;
 std::vector<gameobject*> objects;
 projectile ice_balls;
 fragment brick_fragments;
-hud main_hud;
 Treat treat;
 
 class target : public loaded_object, public block_object {
@@ -388,6 +387,7 @@ int main(int argc, char** argv) {
 	}
 	std::string buffer;
 	glm::vec3 place = glm::vec3(0, 0, 0);
+	bot cat_bot(100);
 	while(getline(fp, buffer, '\n')){
 		//std::stringstream s(buffer);
 		for(char c : buffer){
@@ -397,6 +397,11 @@ int main(int argc, char** argv) {
 				path.locations.push_back(place + glm::vec3(0, -10, 0));
 			}else if(c == 'b'){
 				path_end.locations.push_back(place + glm::vec3(0, -10, 0));
+				cat_bot.set_spawn(place + glm::vec3(0, -10, 0));
+			}else if(c == 'e'){ // this is the exit
+				path.locations.push_back(place + glm::vec3(0, -10, 0));
+				cat_bot.add_exit_point(place + glm::vec3(0, -10, 0));
+			
 			}
 			/*
 			else if(c == 's'){
@@ -418,7 +423,7 @@ int main(int argc, char** argv) {
 	}
 	fp.close();
 	/*Cat Bot*/
-	bot cat_bot(100, path_end.locations[0], path.locations);
+	cat_bot.set_path(path.locations);
 	cat_bot.vision = &ice_balls;
 	cat_bot.treat = &treat;
 
@@ -447,7 +452,7 @@ int main(int argc, char** argv) {
 		}
 	}
 	
-	main_hud.set_text("\n\n");
+	main_hud.set_text("Use Right Click to Place Treats!\n\n");
 
 	/* Start Other Threads */
 	std::thread player_movement_thread(player_movement);

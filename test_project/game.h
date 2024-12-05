@@ -109,3 +109,6 @@ EXTERN float player_fall_speed INIT(0);
 EXTERN gameobject *player_platform INIT(0);
 EXTERN size_t player_platform_index INIT(0);
 EXTERN bool player_fly INIT(0);
+
+#include "hud.h"
+EXTERN hud main_hud;

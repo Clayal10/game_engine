@@ -9,6 +9,7 @@
 #include "game.h"
 #include "pathway.h"
 #include "projectiles.h"
+
 #include <math.h>
 #include <algorithm>
 
@@ -59,15 +60,23 @@ public:
 
 	pathway path;
 	glm::vec3 spawn_point;
+	std::vector<glm::vec3> exit_points;
 
-	bot(double h, glm::vec3 spawn, std::vector<glm::vec3> path_locations) : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(5, 5, 5)) {
+	bot(double h) : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(5, 5, 5)) {
 		scale = 0.25f;
 		swap_yz = true;
 		love = 0;
-		locations.push_back(spawn);
-		explored.push_back(spawn);
-		path.locations = path_locations;
-		spawn_point = spawn;
+	}
+	void add_exit_point(glm::vec3 place){
+		exit_points.push_back(place);
+	}
+	void set_path(std::vector<glm::vec3> places){
+		path.locations = places;
+	}
+	void set_spawn(glm::vec3 place){
+		spawn_point = place;
+		locations.push_back(place);
+		explored.push_back(place);
 	}
 
 	/*TODO unused, should have functinality changed*/
@@ -235,10 +244,12 @@ public:
 				}
 				else if(love < 60 && love >= 20){
 					//being skiddish
+					run_away = false;
 					searching_for_player = false;
 
 				}
 				else if(love >= 60){
+					run_away = false;
 					loves_player = true;
 				}
 			}
@@ -259,7 +270,8 @@ public:
 			/*Once we succeed, everything is skipped after this*/
 			//player_dir = atan2(player_position.z-locations[0].z , player_position.x-locations[0].x);
 			//printf("Player angle: %f\n", player_dir);
-			if(loves_player){	
+			if(loves_player){
+				main_hud.lprintf(1, "Looks like it loves you!\tTime to get out of this maze.");
 				player_dir = atan2(locations[0].z - player_position.z , locations[0].x-player_position.x);
 				rotation_state = closest_interval(player_dir);
 				
@@ -268,6 +280,14 @@ public:
 				for(glm::vec3 place : path.locations){
 					if(place_from_state(locations[0], rotation_state) == place){
 						moving = 10;
+						return;
+					}
+				}
+				for(auto place : exit_points){
+					if(place.x == locations[0].x && place.z == locations[0].z){
+						moving = 10;
+						main_hud.lprintf(0, "You Won!");
+
 						return;
 					}
 				}
@@ -312,6 +332,7 @@ public:
 					//if we can make a turn left or right
 					state_buffer = closest_interval(atan2(locations[0].z - place.z , locations[0].x-place.x));
 					if(state_buffer != rotation_state && state_buffer != backwards(rotation_state)){
+						
 						rotation_state = state_buffer;
 						rotation_list.push_back(rotation_state);
 						moving = 10;
@@ -343,66 +364,6 @@ public:
 				rotation_state = rotation_list[rotation_list.size()-1]; // goes back 1
 					
 
-				/*
-				for(long unsigned int i = 0; i<path.locations.size(); i++){
-					
-					if(path.locations[i] == locations[0] + glm::vec3(0, 0, -10)){
-						for(long unsigned int j=0; j<explored.size(); j++){
-							if(explored[j].x != locations[0].x || explored[j].z != locations[0].z-10){ // if not in explored
-								rotation_state = 0;
-								rotation_list.push_back(rotation_state);
-								moving = 10;
-								break;
-							
-							}
-						}
-						if(moving == 10)
-							break;
-					}
-					if(path.locations[i] == locations[0] + glm::vec3(10, 0, 0)){
-						for(long unsigned int j=0; j<explored.size(); j++){
-							if(explored[j].x != locations[0].x+10 || explored[j].z != locations[0].z){ // if not in explored
-								rotation_state = 1;
-								rotation_list.push_back(rotation_state);
-								moving = 10;
-								break;
-							
-							}
-						}
-						if(moving == 10)
-							break;
-					}
-					if(path.locations[i] == locations[0] + glm::vec3(-10, 0, 0)){
-						for(long unsigned int j=0; j<explored.size(); j++){
-							if(explored[j].x != locations[0].x-10 || explored[j].z != locations[0].z){ // if not in explored
-								rotation_state = 2;
-								rotation_list.push_back(rotation_state);
-								moving = 10;
-								break;
-							
-							}
-						}
-						if(moving == 10)
-							break;
-					}
-					if(path.locations[i] == locations[0] + glm::vec3(0, 0, 10)){
-						for(long unsigned int j=0; j<explored.size(); j++){
-							if(explored[j].x != locations[0].x || explored[j].z != locations[0].z+10){ // if not in explored
-								rotation_state = 3;
-								rotation_list.push_back(rotation_state);
-								moving = 10;
-								break;
-							
-							}
-						}
-						if(moving == 10)
-							break;
-					}
-
-					
-					
-				}
-				*/
 			
 			}
 		}else{
