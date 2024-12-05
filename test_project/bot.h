@@ -63,7 +63,7 @@ public:
 	bot(double h, glm::vec3 spawn, std::vector<glm::vec3> path_locations) : loaded_object("cat.obj", "Cat_bump.jpg", glm::vec3(5, 5, 5)) {
 		scale = 0.25f;
 		swap_yz = true;
-		love = 100;
+		love = 0;
 		locations.push_back(spawn);
 		explored.push_back(spawn);
 		path.locations = path_locations;
@@ -81,11 +81,21 @@ public:
 
 	float x_buff, z_buff;
 	void update_neighbors(std::vector<glm::vec3>* neighbors){
-		neighbors->clear()
-		neighbors->push_back(locations[0] + glm::vec3(10, 0, 0));
-		neighbors->push_back(locations[0] + glm::vec3(-10, 0, 0));
-		neighbors->push_back(locations[0] + glm::vec3(0, 0, 10));
-		neighbors->push_back(locations[0] + glm::vec3(0, 0, 10));
+		neighbors->clear();
+		glm::vec3 buffer;
+		//This is returning eligable neighbors
+		for(auto place : path.locations){
+			buffer = locations[0] + glm::vec3(0, 0, -10);
+			if(buffer == place) neighbors->push_back(buffer);
+			buffer = locations[0] + glm::vec3(10, 0, 0);
+			if(buffer == place) neighbors->push_back(buffer);
+			buffer = locations[0] + glm::vec3(-10, 0, 0);
+			if(buffer == place) neighbors->push_back(buffer);
+			buffer = locations[0] + glm::vec3(0, 0, 10);
+			if(buffer == place) neighbors->push_back(buffer);
+		}
+		
+	
 	}
 
 	/*Logic check*/
@@ -110,23 +120,6 @@ public:
 		puts("INVALID ROTATION");
 		return -1;
 	}	
-	/*Helper for AI for finding the next location*/
-	bool viable(glm::vec3 location){
-		//These are flags where if both are true, do a condition
-		bool ex = false;
-		bool pa = false;
-		//TODO fiddle around with this till it makes sense
-		for(long unsigned int i = 0; i<explored.size(); i++){
-			if(location.x + glm::vec3(10, 0, 0) == explored[i]){ //do for all directions
-			
-			}
-		}
-		for(long unsigned int i = 0; i<path.locations.size(); i++){
-			if(location.x + glm::vec3(10, 0, 0) != path.locations[i]){ //do for all directions
-			
-			}
-		}
-	}
 	/*Helper for floating point comparison*/
 	bool close_enough(float one, float two){// using bot_speed as my margin of error
 		if(one < two+bot_speed && one > two-bot_speed){
@@ -160,6 +153,24 @@ public:
 		}
 		return true;
 	}
+	glm::vec3 place_from_state(glm::vec3 place, int rotation_state){
+		glm::vec3 return_place;
+		switch(rotation_state){
+			case 0:
+				return_place = place + glm::vec3(0, 0, -10);
+				break;
+			case 1:
+				return_place = place + glm::vec3(10, 0, 0);
+				break;
+			case 2:
+				return_place = place + glm::vec3(-10, 0, 0);
+				break;
+			case 3:
+				return_place = place + glm::vec3(0, 0, 10);
+				break;
+		}
+		return return_place;
+	}
 	
 	int closest_interval(float heading){ // returns rotation_direction
 		float buffer;
@@ -192,6 +203,7 @@ public:
 				answer = 1;
 				break;
 		}
+
 		return answer;
 
 
@@ -200,23 +212,6 @@ public:
 	/*This is where all movement and logic happens. This is ran every 'frame'*/
 	int treat_idx;
 	float player_dir; // in radians
-	glm::vec3 place_from_state(glm::vec3 place, int rotation_state){
-		glm::vec3 return_place;
-		switch(rotation_state){
-			case 0:
-				return_place = place + glm::vec3(0, 0, -10);
-				break;
-			case 1:
-				return_place = place + glm::vec3(10, 0, 0);
-				break;
-			case 2:
-				return_place = place + glm::vec3(-10, 0, 0);
-				break;
-			case 3:
-				return_place = place + glm::vec3(0, 0, 10);
-				break;
-		}
-	}
 	void move(int elapsed_time){
 		if(alive){
 			treat_idx = collect_treat();
@@ -266,16 +261,17 @@ public:
 			//printf("Player angle: %f\n", player_dir);
 			if(loves_player){	
 				player_dir = atan2(locations[0].z - player_position.z , locations[0].x-player_position.x);
-				//printf("PLayer Heading from Cat: %f\n", player_dir);
-				update_neighbors(&neighbors);
 				rotation_state = closest_interval(player_dir);
+				
+				printf("New Rotation State: %d\n", rotation_state);
+				
 				for(glm::vec3 place : path.locations){
-				//TODO TODO TODO
+					if(place_from_state(locations[0], rotation_state) == place){
+						moving = 10;
+						return;
+					}
 				}
-				//printf("New Rotation State: %d\n", rotation_state);
-				
-				
-				moving = 10;
+				moving = 0;
 
 				return;
 			}
@@ -308,12 +304,46 @@ public:
 					explored.clear();
 				}
 				/*New Movement AI*/
-				//update_neighbors(&neighbors);
+				update_neighbors(&neighbors);
+				printf("Number of neighbors: %ld\n", neighbors.size());
 				
-
+				int state_buffer;
+				for(auto place : neighbors){
+					//if we can make a turn left or right
+					state_buffer = closest_interval(atan2(locations[0].z - place.z , locations[0].x-place.x));
+					if(state_buffer != rotation_state && state_buffer != backwards(rotation_state)){
+						rotation_state = state_buffer;
+						rotation_list.push_back(rotation_state);
+						moving = 10;
+						return;
+					}
+				}
+			
+				for(auto place : neighbors){
+					//if can go straight
+					if(place == place_from_state(locations[0], rotation_state)){
+						rotation_list.push_back(rotation_state);
+						moving = 10;
+						return;
+					}
+				}
+				//This is if no neighbor in front of us
+				for(auto place : neighbors){
+					rotation_state = closest_interval(atan2(locations[0].z - place.z , locations[0].x-place.x));
+					rotation_list.push_back(rotation_state);
+					moving = 10;
+					return;
+				}
 				
+				
+				//rotation_state = closest_interval(atan2(locations[0].z - place.z , locations[0].x-place.x));
+				/*None of the neighbors are unexplored at this point*/
+				puts("\t\tback tracking");
+				rotation_list.pop_back();
+				rotation_state = rotation_list[rotation_list.size()-1]; // goes back 1
+					
 
-				///*
+				/*
 				for(long unsigned int i = 0; i<path.locations.size(); i++){
 					
 					if(path.locations[i] == locations[0] + glm::vec3(0, 0, -10)){
@@ -372,7 +402,7 @@ public:
 					
 					
 				}
-				//*/
+				*/
 			
 			}
 		}else{

@@ -36,19 +36,6 @@ public:
 	
 };
 
-class trigger_block : public loaded_object{
-	bool start = false;
-	bool end = false;
-	trigger_block() : loaded_object("path.obj", "beans.jpg", glm::vec3(path_width, 2, path_width)){	
-		collision_check = true;
-	}
-	void start_trigger(){
-		start = true;
-	}
-	void end_trigger(){
-		end = true;
-	}
-};
 
 class pathway_end : public loaded_object{
 public:
@@ -59,8 +46,8 @@ public:
 
 class path_walls : public wall_block{
 public:
-	//path_walls() : wall_block("path_walls.obj", "wall.jpeg", glm::vec3(wall_width, wall_height, wall_width)){collision_check = true;}
-	path_walls() : wall_block("", "wall.jpeg", glm::vec3(wall_width, wall_height, wall_width)){collision_check = true;}
+	path_walls() : wall_block("path_walls.obj", "wall.jpeg", glm::vec3(wall_width, wall_height, wall_width)){collision_check = true;}
+	//path_walls() : wall_block("", "wall.jpeg", glm::vec3(wall_width, wall_height, wall_width)){collision_check = true;}
 
 
 	void create_walls(pathway* path, pathway_end* end, glm::vec3 center, int radius){ // center is the center of a 10x10 tile, radius is * pathway_width
