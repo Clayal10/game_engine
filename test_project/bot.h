@@ -301,7 +301,7 @@ public:
 				rotation_list.pop_back();
 				moving = 10;
 
-				if(rotation_list.size() == 0){	
+				if(rotation_list.size() == 1){	
 					run_away = false;
 					last_location = false;
 					bot_speed = speed;
@@ -355,7 +355,6 @@ public:
 					moving = 10;
 					return;
 				}
-				
 				
 				//rotation_state = closest_interval(atan2(locations[0].z - place.z , locations[0].x-place.x));
 				/*None of the neighbors are unexplored at this point*/
