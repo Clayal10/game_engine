@@ -30,6 +30,6 @@
 *.exe
 *.out
 *.app
+play
 
-test_project/x64/
 *~
