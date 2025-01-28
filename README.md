@@ -7,4 +7,4 @@ This repo only has linux support in which you build with the included Makefile i
 sudo apt install libglew-dev libglm-dev libglfw3-dev
 ```
 ## In-game image
-![Image of my game engine](./test_project/game_engine_shot.png)
+![Image of my game engine](./game_engine_shot.png)
