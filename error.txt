@@ -1,1 +1,0 @@
-g++ -g -Wall  -I /usr/local/include   -c -o main.o main.cpp
