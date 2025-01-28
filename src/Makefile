@@ -1,4 +1,4 @@
-OBJS = main.o stb_image.o helpers.o tiny_obj_loader.o baseclass.o old_objects.o geometric_objects.o hud.o
+OBJS = main.o stb_image.o helpers.o tiny_obj_loader.o baseclass.o old_objects.o geometric_objects.o hud.o test_case.o
 CXXFLAGS = -g -Wall 
 LDFLAGS = -lGL -lglfw -lGLEW -pthread -g 
 
@@ -16,4 +16,4 @@ test:	all
 	./play
 
 ${OBJS} : game.h
-main.o : projectiles.h activation_area.h turret.h tile_floor.h old_objects.h moving_platform.h geometric_objects.h hud.h bot.h pathway.h
+main.o : projectiles.h activation_area.h turret.h tile_floor.h old_objects.h moving_platform.h geometric_objects.h hud.h bot.h pathway.h unit_test/cli_test.hpp

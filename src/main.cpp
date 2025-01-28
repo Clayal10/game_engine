@@ -10,6 +10,7 @@
 #include "hud.h"
 #include "pathway.h"
 #include "bot.h"
+#include "unit_test/cli_test.hpp"
 
 #include<fstream>
 #include<sstream>
@@ -341,6 +342,11 @@ void debug_callback(GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLch
 
 
 int main(int argc, char** argv) {
+	/****for unit testing****/
+	init_testing_mode(argc, argv);
+        test_main();
+        run_tests();
+
 	init_helpers();
 	if(!glfwInit()) {
 		puts(RED("GLFW init error, terminating\n").c_str());
