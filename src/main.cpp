@@ -91,7 +91,12 @@ void mouse_click_callback(GLFWwindow* window, int button, int action, int mods){
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
-	
+	if(GLFW_KEY_ESCAPE == key){
+		puts(RED("Window closed by user.").c_str());
+		glfwSetWindowShouldClose(window, true);
+	}
+
+
 	if(GLFW_KEY_W == key && 1 == action){
 		player_key_status.forward = 1;
 	}	

@@ -221,15 +221,10 @@ public:
 	/*This is where all movement and logic happens. This is ran every 'frame'*/
 	int treat_idx;
 	float player_dir; // in radians
+	//I will try to document this movement routine a little better
 	void move(int elapsed_time){
 		if(alive){
-			treat_idx = collect_treat();
-			if(treat_idx != -1){
-				puts("FOUND TREAT");
-				treat->locations.erase(treat->locations.begin()+treat_idx);
-				love += 5;
-
-			}
+			/**Checks if it can see player and what coorosponding action to take**/
 			if (see_player() && !run_away) { // prevents from going through here every iteration
 				//puts("sees player");
 				if (love < 20) {//change >= to >
@@ -253,10 +248,11 @@ public:
 					loves_player = true;
 				}
 			}
+			/**Actual movement action, if it needs to move it will skip everything else**/
 			if(moving > 0){	
 				move_(rotation_state); 
 				return;
-			}else if(!last_location){
+			}else if(!last_location){/**Updates location lists whenever it is done with moving 1 block**/
 				locations[0].x = roundf(locations[0].x);
 				locations[0].z = roundf(locations[0].z);
 				explored.push_back(locations[0]);
@@ -267,15 +263,22 @@ public:
 					last_location = true;
 				}
 			}
-			/*Once we succeed, everything is skipped after this*/
+			/**Checks if there is a treat and picks it up if there is**/
+			treat_idx = collect_treat();
+			if(treat_idx != -1){
+				puts("FOUND TREAT");
+				treat->locations.erase(treat->locations.begin()+treat_idx);
+				love += 5;
+			}
 			//player_dir = atan2(player_position.z-locations[0].z , player_position.x-locations[0].x);
 			//printf("Player angle: %f\n", player_dir);
+			/**Routine for following the player**/ /**Normal movement routine is skipped with a return in this 'if' statement**/
 			if(loves_player){
 				main_hud.lprintf(1, "Looks like it loves you!\tTime to get out of this maze.");
 				player_dir = atan2(locations[0].z - player_position.z , locations[0].x-player_position.x);
 				rotation_state = closest_interval(player_dir);
 				
-				printf("New Rotation State: %d\n", rotation_state);
+				//printf("New Rotation State: %d\n", rotation_state);
 				
 				for(glm::vec3 place : path.locations){
 					if(place_from_state(locations[0], rotation_state) == place){
@@ -295,6 +298,7 @@ public:
 
 				return;
 			}
+			/**run_away is triggered, setting the cat's movement direction bacwards from where it came from**/
 			if(run_away){
  
 				rotation_state = backwards(rotation_list[rotation_list.size()-1]);
@@ -308,8 +312,8 @@ public:
 					to_start.clear();
 
 				}else return;			
-					
-			}else{
+			
+			}else{/**Automatic movement routine**/
 				if(win_check()){
 					puts("You Won!!!");
 				}
@@ -325,8 +329,8 @@ public:
 				}
 				/*New Movement AI*/
 				update_neighbors(&neighbors);
-				printf("Number of neighbors: %ld\n", neighbors.size());
-				
+				//printf("Number of neighbors: %ld\n", neighbors.size());
+				/**If the bot can move left or right, it will**/
 				int state_buffer;
 				for(auto place : neighbors){
 					//if we can make a turn left or right
@@ -339,7 +343,7 @@ public:
 						return;
 					}
 				}
-			
+				/**If the bot can't go left or right but go straight then it will**/
 				for(auto place : neighbors){
 					//if can go straight
 					if(place == place_from_state(locations[0], rotation_state)){
@@ -348,6 +352,7 @@ public:
 						return;
 					}
 				}
+				/**not actually sure**/
 				//This is if no neighbor in front of us
 				for(auto place : neighbors){
 					rotation_state = closest_interval(atan2(locations[0].z - place.z , locations[0].x-place.x));
@@ -355,7 +360,7 @@ public:
 					moving = 10;
 					return;
 				}
-				
+				/**Nothing available, starts back-tracking**/
 				//rotation_state = closest_interval(atan2(locations[0].z - place.z , locations[0].x-place.x));
 				/*None of the neighbors are unexplored at this point*/
 				puts("\t\tback tracking");

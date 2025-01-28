@@ -16,8 +16,6 @@
 
 #define _USE_MATH_DEFINES
 #define GRAVITY 0.0001f
-//#define GRAVITY 0.001f
-#define M_PI 3.14159265
 
 struct vertex {
 	glm::vec3 pos;
